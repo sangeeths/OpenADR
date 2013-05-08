@@ -139,6 +139,7 @@ VN_URL_PREFIX = 'rioVN'
 # 
 # absolute filesystem path to the OpenADR project directory
 OPENADR_ROOT = dirname(dirname(abspath(__file__)))
+print 'OPENADR_ROOT', OPENADR_ROOT
 #
 # absolute filesystem path to the config directory
 CONFIG_ROOT = normpath(join(OPENADR_ROOT, 'config'))

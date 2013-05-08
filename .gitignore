@@ -1,5 +1,8 @@
 *.py[cod]
 
+# Swap files
+*.swp
+
 # C extensions
 *.so
 

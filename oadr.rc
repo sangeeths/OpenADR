@@ -1,0 +1,44 @@
+# oadr.rc
+#
+# Configures PYTHONPATH for OpenADR
+#
+
+#
+# Check whether this script is sourced
+# from OpenADR directory; else fail!
+#
+if [[ `pwd` != *OpenADR ]]; then
+    echo "Please run \"source oadr.rc\" from OpenADR directory"
+    return
+fi
+
+
+#
+# Check whether PYTHONPATH already contains
+# the OpenADR project path; if so, ignore; 
+# else Append/Add the OpenADR project path
+# to PYTHONPATH accordingly.
+#
+if [[ $PYTHONPATH = "" ]]; then
+    export PYTHONPATH=`pwd`
+    echo "PYTHONPATH empty; Added OpenADR Project Path ("`pwd`") to PYTHONPATH"
+else
+    oadr_pp_present=0
+    IFS=':' read -ra PY_PATH <<< "$PYTHONPATH"
+    for p in "${PY_PATH[@]}"; do
+        if [[ $p = `pwd` ]]; then
+            oadr_pp_present=1
+        fi
+    done
+    
+    if [[ $oadr_pp_present -eq 1 ]]; then
+        echo "OpenADR Project Path ("`pwd`") already present in PYTHONPATH"
+    else
+        export PYTHONPATH=$PYTHONPATH:`pwd`
+        echo "Added OpenADR Project Path ("`pwd`") to PYTHONPATH"
+    fi
+fi
+
+echo "Setup ..Done.."
+
+# __END__

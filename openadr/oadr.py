@@ -1,39 +1,32 @@
-from openadr.config import *
-from openadr.util import * 
 import logging 
-
 from BaseHTTPServer import HTTPServer
+
+from openadr import config as oadrCfg
+from openadr.util import * 
 from openadr.ven import VENHttpServer
 from openadr.vtn import VTNHttpServer
 from openadr.vn import VNHttpServer
+from openadr.exception import InvalidOADRNodeType
 
-logging.basicConfig(filename=LOG_FILENAME,
-                    stream=LOG_STREAM,
-                    level=LOG_LEVEL,
-                    format=LOG_FORMAT)
+logging.basicConfig(filename=oadrCfg.LOG_FILENAME,
+                    stream=oadrCfg.LOG_STREAM,
+                    level=oadrCfg.LOG_LEVEL,
+                    format=oadrCfg.LOG_FORMAT)
 
 
 
-print_config()
-print_start_config()
+# print_config_from_file()
+print_startup_message()
 
-if NODE == OADR_NODE.VEN:
-    port = HTTP_VEN_PORT
-    httpHandler = VENHttpServer
-elif NODE == OADR_NODE.VTN:
-    port = HTTP_VTN_PORT
-    httpHandler = VTNHttpServer
-elif NODE == OADR_NODE.VN:
-    port = HTTP_VN_PORT
-    httpHandler = VNHttpServer
-else:
+try: 
+    node = get_node_info(oadrCfg.NODE)
+except InvalidOADRNodeType as e:
+    print e.value
     exit(1)
 
 try:
-    #Create a web server and define the handler to manage the
-    #incoming request
-    server = HTTPServer((IPADDR, port), httpHandler)
-    print '%s HTTP Server started on port %d' % (str(NODE), port)
+    server = HTTPServer((oadrCfg.IPADDR, node['port']), node['http_handler'])
+    print '%s HTTP Server started on port %d' % (str(node['node']), node['port'])
     
     #Wait forever for incoming htto requests
     server.serve_forever()
