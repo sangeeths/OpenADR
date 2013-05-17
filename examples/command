@@ -1,0 +1,1 @@
+curl -v -d @EiEvent/oadr_20a_oadrDistributeEvent_valid_2.xml -H "Content-type: application/xml" http://localhost:9001/rioVEN/OpenADR2/Simple/EiEvent

@@ -1,140 +1,128 @@
-import datetime
-import time
-import inspect
 import logging
 
 from openadr import config as oadrCfg
-from openadr.ven import VENHttpServer
-from openadr.vtn import VTNHttpServer
-from openadr.vn import VNHttpServer
 from openadr.exception import InvalidOADRNodeType
-
-
-def line(char='=', length=50):
-    print char * length
-
-def print_config_from_file():
-    # compose the config string
-    config_str = '''
-
-            Config parameters from  
-
-    LOG_FILENAME       : %s 
-    NODE               : %s
-    MODE               : %s 
-    HOSTNAME           : %s 
-    IPADDR             : %s 
-    VTN_URL_PREFIX     : %s 
-    HTTP_VTN_PORT      : %d 
-    VEN_URL_PREFIX     : %s 
-    HTTP_VEN_PORT      : %d 
-    VN_URL_PREFIX      : %s 
-    HTTP_VN_PORT       : %d 
-    SCHEMA_OADR_20A    : %s 
-    SCHEMA_OADR_EI_20A : %s 
-
-    ''' % (
-        oadrCfg.OADR_CONFIG_FILE,
-        oadrCfg.LOG_FILENAME,
-        oadrCfg.NODE,
-        oadrCfg.MODE,
-        oadrCfg.HOSTNAME,
-        oadrCfg.IPADDR,
-        oadrCfg.VTN_URL_PREFIX,
-        oadrCfg.HTTP_VTN_PORT,
-        oadrCfg.VEN_URL_PREFIX,
-        oadrCfg.HTTP_VEN_PORT,
-        oadrCfg.VN_URL_PREFIX,
-        oadrCfg.HTTP_VN_PORT,
-        oadrCfg.SCHEMA_OADR_20A,
-        oadrCfg.SCHEMA_OADR_EI_20A)
-    logging.debug(config_str)
+from openadr.exception import ProfileNotImplemented
 
 #
-# read the 'OADR_CONFIG_FILE' and retrieve the 
-# config paramaters for a given node
+# this function returns a dict 
+#   key   = OADR_SERVICE.<service-name>
+#   value = absolute url for the service
+#  
+def get_profile_urls():
+
+    # dict which contains service url
+    # for the given profile 
+    urls = {}
+
+    # compose the port number for url
+    port = ''
+    if oadrCfg.CONFIG['port']:
+        port = ':' + str(oadrCfg.CONFIG['port']) 
+    
+    # compose the prefix string for the url
+    prefix = ''
+    if oadrCfg.CONFIG['prefix']:
+        prefix = oadrCfg.CONFIG['prefix'] + '/' 
+    
+    # compose base url
+    base_url = 'http://%s%s/%sOpenADR2/Simple/' % \
+               (oadrCfg.IPADDR, port, prefix)
+
+    # final url = base url + OADR_SERVICE
+    for service in oadrCfg.SERVICE[oadrCfg.PROFILE]:
+        urls[service] = base_url + service.key
+
+    return urls
+
+#
+# the incoming 'url' is the relative path which
+# contains prefix (optional), OpenADR2/Simple, 
+# and service name
+#   
+#   [/prefix]/OpenADR2/Simple/<OADR_SERVICE>
 #
 # success: 
-# return a dict which contains the following:
-#   node = 'VEN', 'VTN' or 'VN' (enum value)
-#   port = http port for the node 
-#   prefix = http url prefix for the node
-#   http_handler = http web server handler for the node
-#   .. keep adding any node type related parameters here!!
+# for valid url, OADR_SERVICE.<service-name> 
+# is returned 
 #
 # failure:
-# raise InvalidOADRNodeType exception and 
-# return an empty dict if invalid node 
-# type is passed.
+# for invalid url, None is returned
 #
-def get_node_info(node):
-    cfg = {}
-    if oadrCfg.NODE == oadrCfg.OADR_NODE.VEN:
-        cfg['node']         = oadrCfg.OADR_NODE.VEN
-        cfg['port']         = oadrCfg.HTTP_VEN_PORT
-        cfg['prefix']       = oadrCfg.VEN_URL_PREFIX
-        cfg['http_handler'] = VENHttpServer
-        cfg['node_str']     = 'Virtual End Node (VEN)'
-    elif oadrCfg.NODE == oadrCfg.OADR_NODE.VTN:
-        cfg['node']         = oadrCfg.OADR_NODE.VTN
-        cfg['port']         = oadrCfg.HTTP_VTN_PORT
-        cfg['prefix']       = oadrCfg.VTN_URL_PREFIX
-        cfg['http_handler'] = VTNHttpServer
-        cfg['node_str']     = 'Virtual Top Node (VTN)'
-    elif oadrCfg.NODE == oadrCfg.OADR_NODE.VN:
-        cfg['node']         = oadrCfg.OADR_NODE.VN
-        cfg['port']         = oadrCfg.HTTP_VN_PORT
-        cfg['prefix']       = oadrCfg.VN_URL_PREFIX
-        cfg['http_handler'] = VNHttpServer
-        cfg['node_str']     = 'Virtual Top Node (VTN) & Virtual End Node (VEN)'
-    else:
-        e_str = ('get_node_info(): Invalid Node Type: %s; check %s') % \
-                (str(oadrCfg.NODE), oadrCfg.OADR_CONFIG_FILE)
-        raise InvalidOADRNodeType(e_str)
-        logging.critical(e_str)
+def valid_url(url):
+
+    base_url = ''
     
-    l_str = ('get_node_info(): Node Info - node: %s, port: %d, ' 
-             'prefix: %s, http_handler: %s, node_str: %s') % \
-            (cfg['node'], cfg['port'], cfg['prefix'], 
-             cfg['http_handler'], cfg['node_str'])
-    logging.info(l_str)
+    # if optional prefix is present, then 
+    # add that to the relative url
+    if oadrCfg.CONFIG['prefix']: 
+        base_url = '/' + oadrCfg.CONFIG['prefix'] 
 
-    return cfg
+    base_url += '/OpenADR2/Simple/'
 
+    for service in oadrCfg.SERVICE[oadrCfg.PROFILE]:
+        if url == base_url + service.key:
+            return service    
+
+    return None
+
+#
+# return true if the incoming oadr message
+# is valid (and allowed/expected) to be 
+# received at the current NODE.
+#
+# return false if the NODE (ven/vtn/vn) is 
+# not expected to receive this messsage but 
+# received it!
+#
+def valid_profile_msg(op, oadr_msg):
+    for msg in oadrCfg.MESSAGE[oadrCfg.PROFILE][oadrCfg.NODE][op]:
+        if oadr_msg == msg:
+            return True
+    return False
+
+#
+# print the following information
+#   -> OADR_NODE - VEN, VTN or VN
+#   -> OADR_MODE - PULL, PUSH
+#   -> IP Address 
+#   -> HTTP Server Port
+#   -> OADR_PROFILE - A, B or C
+#   -> List of service urls
+#
+# NOTE: this function will be called 
+#       only during start up to display
+#       some useful information
+#
 def print_startup_message():
-    try: 
-        node = get_node_info(oadrCfg.NODE)
-    except InvalidOADRNodeType as e:
-        print e.value
-        exit(1)
-        
+
     # compose the config string
-    config_str = ('Starting OpenADR %s in %s mode '
-                  'on %s at port %d configured for '
-                  'openADR 2.0 %s profile schema.') % (
-                  node['node_str'], str(oadrCfg.MODE), 
-                  oadrCfg.IPADDR, node['port'], 
-                  str(oadrCfg.PROFILE))
+    msg = 'Starting OpenADR %s in %s mode on %s ' \
+          'at port %d configured for openADR 2.0 %s ' \
+          'profile schema.\n\n' % (
+          oadrCfg.CONFIG['node_str'], 
+          oadrCfg.MODE.key, 
+          oadrCfg.IPADDR, 
+          oadrCfg.CONFIG['port'], 
+          oadrCfg.PROFILE.key)
 
-    print config_str
-    logging.info(config_str)
+    # print url information for the given node
+    urls = get_profile_urls()
+    for service, url in urls.iteritems():
+        msg += '\t%15s : %s\n' % (service.key, url)
+    msg += '\n'
+
+    print msg
+    logging.info(msg)
     
+    return
 
-def debug(dstr):
-    # get the current date and time
-    t = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-    
-    # get the caller information
-    stack = inspect.stack()[1]
-    fname = stack[1]    # caller file name
-    line = stack[2]     # caller line number
-    func = stack[3]     # caller function name
+#
+# print shutdown message, if any.
+# else, pass.
+#
+def print_shutdown_message():
+    print '\nShutting down OpenADR %s\n' % \
+          oadrCfg.CONFIG['node_str']
+    print 'Good bye!\n'
 
-    # if the debug() is not called from a function
-    # then just print the string 'global' 
-    if func == "<module>": func = "global"
-    else: func = func + "()"
-
-    # print the debug string with timestamp and caller info
-    if oadr.DEBUG: print "[%s] %s:%s:%d -> %s" % \
-                         (t, fname, func, line, dstr)

@@ -31,6 +31,8 @@ else
         fi
     done
     
+    unset PY_PATH 
+   
     if [[ $oadr_pp_present -eq 1 ]]; then
         echo "OpenADR Project Path ("`pwd`") already present in PYTHONPATH"
     else
