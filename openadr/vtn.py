@@ -1,5 +1,8 @@
 from BaseHTTPServer import BaseHTTPRequestHandler
 
+def VTNHttpServerStartCB():
+    print "This is VTN Server Start Callback"
+
 class VTNHttpServer(BaseHTTPRequestHandler):
     def do_POST(self):
         print "This is vtn.py:VTNHttpServer"

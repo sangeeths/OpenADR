@@ -1,8 +1,57 @@
 import logging
 
+from lxml import etree
+from io import BytesIO
+
 from openadr import config as oadrCfg
 from openadr.exception import InvalidOADRNodeType
 from openadr.exception import ProfileNotImplemented
+
+#
+# print the following information
+#   -> OADR_NODE - VEN, VTN or VN
+#   -> OADR_MODE - PULL, PUSH
+#   -> IP Address 
+#   -> HTTP Server Port
+#   -> OADR_PROFILE - A, B or C
+#   -> List of service urls
+#
+# NOTE: this function will be called 
+#       only during start up to display
+#       some useful information
+#
+def print_startup_message():
+
+    # compose the config string
+    msg = 'Starting OpenADR %s in %s mode on %s ' \
+          'at port %d configured for openADR 2.0 %s ' \
+          'profile schema.\n\n' % (
+          oadrCfg.CONFIG['node_str'], 
+          oadrCfg.MODE.key, 
+          oadrCfg.IPADDR, 
+          oadrCfg.CONFIG['port'], 
+          oadrCfg.PROFILE.key)
+
+    # print url information for the given node
+    urls = get_profile_urls()
+    for service, url in urls.iteritems():
+        msg += '\t%15s : %s\n' % (service.key, url)
+    msg += '\n'
+
+    print msg
+    logging.info(msg)
+    
+    return
+
+#
+# print shutdown message, if any.
+# else, pass.
+#
+def print_shutdown_message():
+    print '\nShutting down OpenADR %s\n' % \
+          oadrCfg.CONFIG['node_str']
+    print 'Good bye!\n'
+
 
 #
 # this function returns a dict 
@@ -81,48 +130,165 @@ def valid_profile_msg(op, oadr_msg):
             return True
     return False
 
-#
-# print the following information
-#   -> OADR_NODE - VEN, VTN or VN
-#   -> OADR_MODE - PULL, PUSH
-#   -> IP Address 
-#   -> HTTP Server Port
-#   -> OADR_PROFILE - A, B or C
-#   -> List of service urls
-#
-# NOTE: this function will be called 
-#       only during start up to display
-#       some useful information
-#
-def print_startup_message():
 
-    # compose the config string
-    msg = 'Starting OpenADR %s in %s mode on %s ' \
-          'at port %d configured for openADR 2.0 %s ' \
-          'profile schema.\n\n' % (
-          oadrCfg.CONFIG['node_str'], 
-          oadrCfg.MODE.key, 
-          oadrCfg.IPADDR, 
-          oadrCfg.CONFIG['port'], 
-          oadrCfg.PROFILE.key)
+# 
+# validates whether the incoming xml 
+# data (string) is compliance with the
+# OpenADR Schema
+#
+# if valid xml document, returns lxml 
+# handle to the incoming document
+#
+# if invalid xml document, returns None
+#
+def valid_oadr_xml(xml_s):
 
-    # print url information for the given node
-    urls = get_profile_urls()
-    for service, url in urls.iteritems():
-        msg += '\t%15s : %s\n' % (service.key, url)
-    msg += '\n'
+    # get oadr schema handle
+    #   oadr_schema_f = handle to the schema file
+    #   oadr_schema_h = lxml handle to the schema xml
+    #   oadr_schema   = this is the schema handle that 
+    #                   should be used against all the 
+    #                   incoming xml data
+    #
+    with open(oadrCfg.XSD[oadrCfg.PROFILE], 'r') as oadr_schema_f:
+        oadr_schema_h = etree.parse(oadr_schema_f)
+    oadr_schema = etree.XMLSchema(oadr_schema_h)
 
-    print msg
-    logging.info(msg)
+    # get lxml handle for the incoming xml data 
+    try:
+        xml_h = etree.parse(BytesIO(xml_s))
+    except Exception, e:
+        logging.info(repr(e))
+        return None
+
+    compliance = oadr_schema.validate(xml_h)
+    print 'compliance : ', compliance
+
+    # if the incoming xml adhere to the 
+    # OpenADR Profile Schema then return
+    # the lxml handle, else return None
+    #
+    if compliance is True: return xml_h
+    else: return None
+
+
+def root_element(xml_h):
+    return xml_h.xpath('local-name()')
+
+
+#
+# for the given service and lxml handle
+# to the xml data, this function finds 
+# the name of the oadr message
+#
+# returns None if invalid message
+#
+def get_oadr_msg(service, xml_h):
+    root = root_element(xml_h)
+    for msg in oadrCfg.SERVICE_MESSAGE[service]:
+        if root == msg.key:
+            return msg
+    return None
+
+
+def get_schema_ns(prefix=None):
+    ns = {}
+    for schema_file in oadrCfg.XSD_NS[oadrCfg.PROFILE]:
+        with open(schema_file, 'r') as oadr_schema_f:
+            oadr_schema = oadr_schema_f.read()
+        oadr_schema_h = etree.XML(oadr_schema)
+        # union of two dict - ns and nsmap
+        ns = dict(oadr_schema_h.nsmap, **ns)
     
-    return
+    if prefix is None: return ns 
+ 
+    # if namespace of a particular prefix
+    # is required, then iterate through ns
+    # dict and fetch the correct ns for 
+    # the incoming prefix   
+    for key, value in ns.iteritems():
+        if key == prefix: return value
+
+    return None
+
 
 #
-# print shutdown message, if any.
-# else, pass.
+# this function is called to validate 
+# the incoming http url and data
 #
-def print_shutdown_message():
-    print '\nShutting down OpenADR %s\n' % \
-          oadrCfg.CONFIG['node_str']
-    print 'Good bye!\n'
+# the following validation are performed:
+#   1. valid url
+#   2. valid xml data 
+#   3. oadr-service <-> oadr-msg mapping
+#   4. oadr-node (ven/vtn) <-> oadr-msg mapping
+#
+# returns a dict - ret_d 
+# ret_d = return dictionary
+#   ret_d['valid']          -> True/False
+#
+# on success (ret_d['valid'] == True):
+#       variable                example
+#   ret_d['oadr_service']   -> oadrCfg.OADR_SERVICE.EiEvent
+#   ret_d['oadr_message']   -> oadrCfg.OADR_EIEVENT.oadrDistributeEvent
+#   ret_d['oadr_xml_msg_h'] -> lxml handle to the incoming 
+#                               oadr xml message
+#
+# on failure (ret_d['valid'] == False):
+#       variable                example
+#   ret_d['http_resp_code'] -> 200
+#   ret_d['http_resp_msg']  -> 'Sample message'
+#
+def valid_incoming_data(url, xml):
+
+    ret_d= {'valid': False,
+            'http_resp_code': 200,
+            'http_resp_msg' : ''
+           }
+
+    service = valid_url(url)
+    if service is None:
+        msg = 'Invalid Request URL - %s\n' \
+              'Currently supported OpenADR Services ' \
+              'and its URL are as follows: \n' % (url)
+        urls = get_profile_urls()
+        for svc, url in urls.iteritems():
+            msg += '%15s : %s\n' % (svc.key, url)
+        ret_d['http_resp_msg'] = msg
+        logging.info(msg)
+        return ret_d
+
+    xml_h = valid_oadr_xml(xml)
+    if xml_h is None:
+        msg = 'The incoming XML data is not ' \
+              'compliant with OpenADR %s Profile ' \
+              'Schema\n' % (oadrCfg.PROFILE)
+        ret_d['http_resp_msg'] = msg
+        logging.info(msg)
+        return ret_d
+
+    oadr_msg = get_oadr_msg(service, xml_h)
+    if oadr_msg is None:
+        msg = '%s is not a valid %s service message\n' % \
+              (root_element(xml_h), service.key)
+        ret_d['http_resp_msg'] = msg
+        logging.info(msg)
+        return ret_d
+
+    if not valid_profile_msg(oadrCfg.OADR_OP.RECV, oadr_msg):
+        msg = '%s is not subjected to receive (%s\'s) %s ' \
+              'message\n' % (oadrCfg.CONFIG['node_str'],
+              service.key, oadr_msg.key)
+        ret_d['http_resp_msg'] = msg
+        logging.info(msg)
+        return ret_d
+
+    # on success, return the following.
+    del ret_d['http_resp_code']
+    del ret_d['http_resp_msg']
+    ret_d['oadr_service'] = service
+    ret_d['oadr_message'] = oadr_msg
+    ret_d['oadr_xml_msg_h'] = xml_h
+    ret_d['valid'] = True
+    
+    return ret_d
 

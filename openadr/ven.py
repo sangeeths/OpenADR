@@ -2,7 +2,22 @@ from BaseHTTPServer import BaseHTTPRequestHandler
 
 from openadr import config as oadrCfg
 from openadr.util import *
-from openadr.xml import *
+from openadr.services.EiEvent import *
+
+def VENHttpServerStartCB():
+    print "this is VEN Http Server Start Callback"
+
+    # TODO: perform registration with VTN
+    # TODO: securtiy - tls 1.0
+
+    #
+    # if running in PULL mode then send
+    # oadrRequestEvent message to the VTN
+    #
+    if oadrCfg.MODE == oadrCfg.HTTP_MODE.PULL:
+        eievent = EiEvent()
+        eievent.poll()
+ 
 
 class VENHttpServer(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -12,6 +27,8 @@ class VENHttpServer(BaseHTTPRequestHandler):
         data = self.rfile.read(dlen)
         url  = self.path
 
+        # TODO: client info : self.client_address
+
         msg = 'VEN HTTP Server received a request\n' \
               '         url : %s\n' \
               ' data length : %d\n' \
@@ -20,67 +37,55 @@ class VENHttpServer(BaseHTTPRequestHandler):
 
         logging.debug(msg)
 
-        response = process_ven_message(url, data)
-
-        self.send_response(response['code'])
-#        self.send_header('Content-type',self.headers['Content-Type'])
-        self.end_headers()
-        self.wfile.write(response['msg'])
-
-
-def process_ven_message(url, xml):
+        # valid_incoming_data() retruns 
+        # request dictionary - req_d
+        #
+        # on failure: req_d['valid'] == False
+        #   req_d['http_resp_code']
+        #   req_d['http_resp_msg']
+        #
+        # on success: req_d['valid'] == True
+        #   req_d['oadr_service']
+        #   req_d['oadr_message']
+        #   req_d['oadr_msg_xml_h']
+        req_d = valid_incoming_data(url, data)
     
-    #
-    # return this dict at any stage of processing
-    #   http_resp['code'] = http response code
-    #   http_resp['msg']  = response message for the
-    #                       operation performed on 
-    #                       incoming 'xml'
-    #
-    http_resp = {'code':200, 'msg': 'Alright!!'}
+        # on failure, send a http repsonse 
+        # with the following parameters
+        #   req_d['http_resp_code']
+        #   req_d['http_resp_msg']
+        #
+        if not req_d['valid']:
+            self.send_response(req_d['http_resp_code'])
+            self.end_headers()
+            self.wfile.write(req_d['http_resp_msg'])
+            return
 
-    service = valid_url(url)
-    if service is None: 
-        msg = 'Invalid Request URL - %s\n' \
-              'Currently supported OpenADR Services ' \
-              'and its URL are as follows: \n' % (url)
-        urls = get_profile_urls()
-        for service, url in urls.iteritems():
-            msg += '%15s : %s\n' % (service.key, url)
-        http_resp['msg'] = msg
-        print msg
-        logging.info(msg)
-        return http_resp
+        msg_d = process_ven_message(req_d['oadr_service'],
+                                    req_d['oadr_message'],
+                                    req_d['oadr_xml_msg_h'])
 
-    xml_h = valid_oadr_xml(xml)
-    if xml_h is None:
-        msg = 'The incoming XML data is not ' \
-              'compliant with OpenADR %s Profile ' \
-              'Schema\n' % (oadrCfg.PROFILE)
-        http_resp['msg'] = msg
-        print msg
-        logging.info(msg)
-        return http_resp
+        self.send_response(msg_d['http_resp_code'])
+        self.end_headers()
+        self.wfile.write(msg_d['http_resp_msg'])
+        return
 
-    oadr_msg = get_oadr_msg(service, xml_h)
-    if oadr_msg is None:
-        msg = '%s is not a valid %s service message\n' % \
-              (root_element(xml_h), service.key) 
-        http_resp['msg'] = msg
-        print msg
-        logging.info(msg)
-        return http_resp
-        
-    if not valid_profile_msg(oadrCfg.OADR_OP.RECV, oadr_msg):
-        msg = '%s is not subjected to receive (%s\'s) %s ' \
-              'message\n' % (oadrCfg.CONFIG['node_str'], 
-              oadr_msg.key, service.key) 
-        http_resp['msg'] = msg
-        print msg
-        logging.info(msg)
-        return http_resp
+def process_ven_message(service, message, xml_h):
 
-    # return the default response 
-    # code and message
-    return http_resp
-        
+    msg_d= {'http_resp_code': 200,
+            'http_resp_msg' : ''
+           }
+
+    print 'processing service: %s, message: %s, xml_handle: %s' % \
+          (service, message, xml_h)
+
+    if service == oadrCfg.OADR_SERVICE.EiEvent:
+        eievent = EiEvent(xml_h)
+        eievent.response()
+        print eievent.compose_oadrRequestEvent_msg()
+        print "-------------------------"
+        print eievent.compose_oadrCreatedEvent_msg()
+
+    return msg_d
+
+

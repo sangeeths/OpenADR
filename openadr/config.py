@@ -49,6 +49,7 @@ OADR_CONFIG_FILE = abspath(__file__)
 #       the directory structure is changed!
 #
 # absolute filesystem path to the schema directory
+# Read-only: Do Not Change
 SCHEMA_ROOT = normpath(join(OPENADR_ROOT, 'schema'))
 #
 # absolute filesystem path to the 2.0A, 
@@ -167,6 +168,7 @@ OADR_SERVICE = Enum('EiAvail',
 #
 # SERVICE holds the list of OADR_SERVICES
 # that are applicable for a given OADR_PROFILE
+# Read-only: Do Not Change
 SERVICE = {OADR_PROFILE.A: [OADR_SERVICE.EiEvent],
            OADR_PROFILE.B: [OADR_SERVICE.EiEvent, 
                             OADR_SERVICE.EiOpt, 
@@ -273,6 +275,7 @@ MESSAGE = {OADR_PROFILE.A: {OADR_NODE.VTN: {OADR_OP.SEND: A_VTN_SEND,
 #
 # mapping OADR_SERVICE.<service-name> 
 # and service enums
+# Read-only: Do Not Change
 SERVICE_MESSAGE = {
     OADR_SERVICE.EiAvail         : [],
     OADR_SERVICE.EiEnroll        : [],
@@ -289,9 +292,26 @@ SERVICE_MESSAGE = {
 #
 # OADR_PROFILE and path to its schema (*.xsd) 
 # Read-only: Do Not Change
-XSD = {OADR_PROFILE.A:SCHEMA_OADR_20A,
-       OADR_PROFILE.B:SCHEMA_OADR_20B,
-       OADR_PROFILE.C:SCHEMA_OADR_20C}
+XSD = {OADR_PROFILE.A: SCHEMA_OADR_20A,
+       OADR_PROFILE.B: SCHEMA_OADR_20B,
+       OADR_PROFILE.C: SCHEMA_OADR_20C
+      }
+#
+# This is required to gather all the 
+# namespace for a given OADR_PROFILE schema
+# Read-only: Do Not Change
+XSD_NS = {OADR_PROFILE.A: [SCHEMA_OADR_20A, SCHEMA_OADR_EI_20A, 
+                           SCHEMA_OADR_EMIX_20A, SCHEMA_OADR_PYLD_20A, 
+                           SCHEMA_OADR_STRM_20A, SCHEMA_OADR_XCAL_20A],
+          OADR_PROFILE.B: [SCHEMA_OADR_20B, SCHEMA_OADR_ISO_CC, 
+                           SCHEMA_OADR_ATOM, SCHEMA_OADR_EI_20B, 
+                           SCHEMA_OADR_EMIX_20B, SCHEMA_OADR_GML_20B, 
+                           SCHEMA_OADR_GREENBUTTON, SCHEMA_OADR_POWER_20B, 
+                           SCHEMA_OADR_PYLD_20B, SCHEMA_OADR_SISCALE_20B, 
+                           SCHEMA_OADR_STRM_20B, SCHEMA_OADR_XCAL_20B, 
+                           SCHEMA_OADR_XMLDSIG, SCHEMA_OADR_XMLDSIG11],
+          OADR_PROFILE.C: [SCHEMA_OADR_20C]
+         }
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -304,7 +324,7 @@ XSD = {OADR_PROFILE.A:SCHEMA_OADR_20A,
 HOSTNAME = 'localhost'
 #
 # IP Address
-IPADDR = '192.168.0.198'
+IPADDR = '192.168.0.195'
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -365,34 +385,32 @@ VN_URL_PREFIX = 'rioVN'
 #
 #             Node Configuration
 #
-# Read-only: Do Not Change
+# Basic configurations like port, prefix,
+# description, etc for a given OADR_NODE type
+# Read-only: Do Not Change (unless really needed)
 OADR_NODE_CONFIG = {
     OADR_NODE.VEN: {
         'node'         : OADR_NODE.VEN, 
         'port'         : HTTP_VEN_PORT,
         'prefix'       : VEN_URL_PREFIX,
-#       'http_handler' : VENHttpServer,
         'node_str'     : 'Virtual End Node (VEN)'},
     OADR_NODE.VTN: {
         'node'         : OADR_NODE.VTN, 
         'port'         : HTTP_VTN_PORT,
         'prefix'       : VTN_URL_PREFIX,
-#       'http_handler' : VTNHttpServer,
         'node_str'     : 'Virtual Top Node (VTN)'},
     OADR_NODE.VN:  {
         'node'         : OADR_NODE.VN, 
         'port'         : HTTP_VN_PORT,
         'prefix'       : VN_URL_PREFIX,
-#       'http_handler' : VNHttpServer,
         'node_str'     : 'Virtual Top Node (VTN) & '\
                          'Virtual End Node (VEN)'},
 }
 
-CONFIG = OADR_NODE_CONFIG[NODE]
-
 #
-# VN URL prefix
-VN_URL_PREFIX = 'rioVN'
+# Configuration of the current node type
+# Read-only: Do Not Change
+CONFIG = OADR_NODE_CONFIG[NODE]
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
 

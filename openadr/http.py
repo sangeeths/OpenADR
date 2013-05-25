@@ -1,7 +1,8 @@
 from openadr import config as oadrCfg
-from openadr.ven import VENHttpServer
-from openadr.vtn import VTNHttpServer
-from openadr.vn import VNHttpServer
+
+from openadr.ven import VENHttpServer, VENHttpServerStartCB
+from openadr.vtn import VTNHttpServer, VTNHttpServerStartCB
+from openadr.vn import VNHttpServer, VNHttpServerStartCB
 
 #
 # NOTE: ideally the http_handler for the 
@@ -21,9 +22,25 @@ from openadr.vn import VNHttpServer
 #
 OADR_HTTP_HANDLER = {oadrCfg.OADR_NODE.VEN: VENHttpServer,
                      oadrCfg.OADR_NODE.VTN: VTNHttpServer,
-                     oadrCfg.OADR_NODE.VN:  VNHttpServer}
+                     oadrCfg.OADR_NODE.VN:  VNHttpServer
+                    }
 
 HttpHandler = OADR_HTTP_HANDLER[oadrCfg.NODE]
 
+#
+# the following are the callback functions 
+# which are called for the respective nodes
+# right after the HTTP server is started
+#
+# this callback function can be used for 
+# registration with VEN/VTN, authentication, 
+# polling, pull request, etc.
+# 
+OADR_HTTP_START_CB = {oadrCfg.OADR_NODE.VEN: VENHttpServerStartCB,
+                      oadrCfg.OADR_NODE.VTN: VTNHttpServerStartCB,
+                      oadrCfg.OADR_NODE.VN:  VNHttpServerStartCB
+                     }
+
+HttpServerStartCB = OADR_HTTP_START_CB[oadrCfg.NODE]
 
 

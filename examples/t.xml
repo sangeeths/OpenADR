@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns0:oadrRequestEvent xmlns:ns0="http://openadr.org/oadr-2.0a/2012/07">
+  <ns1:eiRequestEvent xmlns:ns1="http://docs.oasis-open.org/ns/energyinterop/201110/payloads">
+    <ns1:requestID>rioVEN-request-1</ns1:requestID>
+    <ns2:venID xmlns:ns2="http://docs.oasis-open.org/ns/energyinterop/201110">rioVEN-1</ns2:venID>
+    <ns1:replyLimit>0</ns1:replyLimit>
+  </ns1:eiRequestEvent>
+</ns0:oadrRequestEvent>
+
