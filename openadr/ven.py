@@ -37,6 +37,8 @@ class VENHttpServer(BaseHTTPRequestHandler):
 
         logging.debug(msg)
 
+        print get_schema_ns()
+
         # valid_incoming_data() retruns 
         # request dictionary - req_d
         #
@@ -85,6 +87,8 @@ def process_ven_message(service, message, xml_h):
         print eievent.compose_oadrRequestEvent_msg()
         print "-------------------------"
         print eievent.compose_oadrCreatedEvent_msg()
+        print "-------------------------"
+        print eievent.compose_oadrDistributeEvent_msg()
 
     return msg_d
 

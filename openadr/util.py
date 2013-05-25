@@ -162,6 +162,7 @@ def valid_oadr_xml(xml_s):
         return None
 
     compliance = oadr_schema.validate(xml_h)
+    #compliance = oadr_schema.assertValid(xml_h)
     print 'compliance : ', compliance
 
     # if the incoming xml adhere to the 
