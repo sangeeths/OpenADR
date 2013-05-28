@@ -16,4 +16,11 @@ class InvalidServiceURL(Exception):
         self.value = value
     def __str__(self):
         return repr(self.value)
-        
+ 
+class UnknownEiEventMessage(Exception):
+    def __init__(self, value='Unknown EiEvent Message'):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+ 
+       

@@ -173,6 +173,8 @@ def valid_oadr_xml(xml_s):
     else: return None
 
 
+# TODO: find lxml way of getting
+#       the root element
 def root_element(xml_h):
     return xml_h.xpath('local-name()')
 
@@ -190,6 +192,22 @@ def get_oadr_msg(service, xml_h):
         if root == msg.key:
             return msg
     return None
+
+
+# from : {http://openadr.org/oadr-2.0a/2012/07}oadrDistributeEvent
+# to   : oadr:oadrDistributeEvent          
+#def get_nsprefix_element(ns_ele):
+
+def get_ns(xml_h, reverse=False):
+    # convert the incoming is etree.parse handler
+    # to etree.XML so that we can get nsmap easily
+    xml = etree.XML(etree.tostring(xml_h))
+    # reverse dictionaring!! ;)
+    if reverse:
+        ns = dict((v, k) for k, v in xml.nsmap.iteritems())
+    else:
+        ns = xml.nsmap
+    return ns
 
 
 def get_schema_ns(prefix=None):

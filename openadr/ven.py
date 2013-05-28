@@ -2,7 +2,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler
 
 from openadr import config as oadrCfg
 from openadr.util import *
-from openadr.services.EiEvent import *
+from openadr.services.EiEvent import manager as EiEventManager
 
 def VENHttpServerStartCB():
     print "this is VEN Http Server Start Callback"
@@ -82,13 +82,8 @@ def process_ven_message(service, message, xml_h):
           (service, message, xml_h)
 
     if service == oadrCfg.OADR_SERVICE.EiEvent:
-        eievent = EiEvent(xml_h)
-        eievent.response()
-        print eievent.compose_oadrRequestEvent_msg()
-        print "-------------------------"
-        print eievent.compose_oadrCreatedEvent_msg()
-        print "-------------------------"
-        print eievent.compose_oadrDistributeEvent_msg()
+        response_xml_s = EiEventManager.Response(xml_h)
+        print 'response_xml_s : %s' % response_xml_s
 
     return msg_d
 
