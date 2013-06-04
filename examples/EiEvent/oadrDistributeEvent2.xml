@@ -137,6 +137,19 @@
                 </ei:payloadFloat>
               </ei:signalPayload>
             </ei:interval>
+            <ei:interval>
+              <xcal:duration>
+                <xcal:duration>PT2H</xcal:duration>
+              </xcal:duration>
+              <xcal:uid>
+                <xcal:text>xcal:text1</xcal:text>
+              </xcal:uid>
+              <ei:signalPayload>
+                <ei:payloadFloat>
+                  <ei:value>0.0</ei:value>
+                </ei:payloadFloat>
+              </ei:signalPayload>
+            </ei:interval>
           </strm:intervals>
           <ei:signalName>ei:signalName</ei:signalName>
           <ei:signalType>delta</ei:signalType>
