@@ -4,156 +4,138 @@ from openadr.util import *
 from openadr.services.EiEvent import elements as en     # en = element name
 from openadr.services.EiEvent import config as EiEventCfg
 
-
-# <ei:eiEvent>
-#     <ei:eventDescriptor>
-#         <ei:eventID>ei:eventID</ei:eventID>
-#         <ei:modificationNumber>0</ei:modificationNumber>
-#         <ei:priority>0</ei:priority>
-#         <ei:eiMarketContext>
-#             <emix:marketContext>http://tempuri.org</emix:marketContext>
-#         </ei:eiMarketContext>
-#         <ei:createdDateTime>2001-12-31T12:00:00</ei:createdDateTime>
-#         <ei:eventStatus>none</ei:eventStatus>
-#         <ei:testEvent>ei:testEvent</ei:testEvent>
-#         <ei:vtnComment>ei:vtnComment</ei:vtnComment>
-#     </ei:eventDescriptor>
-#     <ei:eiActivePeriod>
-#         <xcal:properties>
-#             <xcal:dtstart>
-#                 <xcal:date-time>2001-12-31T12:00:00</xcal:date-time>
-#             </xcal:dtstart>
-#             <xcal:duration>
-#                 <xcal:duration>PT1H</xcal:duration>
-#             </xcal:duration>
-#             <xcal:tolerance>
-#                 <xcal:tolerate>
-#                     <xcal:startafter>PT2H</xcal:startafter>
-#                 </xcal:tolerate>
-#             </xcal:tolerance>
-#             <ei:x-eiNotification>
-#                 <xcal:duration>PT3H</xcal:duration>
-#             </ei:x-eiNotification>
-#             <ei:x-eiRampUp>
-#                 <xcal:duration>PT5H</xcal:duration>
-#             </ei:x-eiRampUp>
-#             <ei:x-eiRecovery>
-#                 <xcal:duration>PT10H</xcal:duration>
-#             </ei:x-eiRecovery>
-#         </xcal:properties>
-#         <xcal:components/>
-#     </ei:eiActivePeriod>
-#     <ei:eiEventSignals>
-#         <ei:eiEventSignal>
-#             <strm:intervals>
-#                 <ei:interval>
-#                     <xcal:duration>
-#                         <xcal:duration>PT12H</xcal:duration>
-#                     </xcal:duration>
-#                     <xcal:uid>
-#                         <xcal:text>xcal:text</xcal:text>
-#                     </xcal:uid>
-#                     <ei:signalPayload>
-#                         <ei:payloadFloat>
-#                             <ei:value>0.0</ei:value>
-#                         </ei:payloadFloat>
-#                     </ei:signalPayload>
-#                 </ei:interval>
-#             </strm:intervals>
-#             <ei:signalName>ei:signalName</ei:signalName>
-#             <ei:signalType>delta</ei:signalType>
-#             <ei:signalID>ei:signalID</ei:signalID>
-#             <ei:currentValue>
-#                 <ei:payloadFloat>
-#                     <ei:value>0.0</ei:value>
-#                 </ei:payloadFloat>
-#             </ei:currentValue>
-#         </ei:eiEventSignal>
-#     </ei:eiEventSignals>
-#     <ei:eiTarget>
-#         <ei:groupID>ei:groupID</ei:groupID>
-#         <ei:resourceID>ei:resourceID</ei:resourceID>
-#         <ei:venID>ei:venID</ei:venID>
-#         <ei:partyID>ei:partyID</ei:partyID>
-#     </ei:eiTarget>
-# </ei:eiEvent>
-
-
-
-
 class EiEvent:
-    __eventDescriptor = ('eventID', 'modificationNumber', 'priority', \
-                         'eiMarketContext', 'createdDateTime', 'eventStatus', \
-                         'testEvent', 'vtnComment')
-    __eiActivePeriod = ('properties', 'components')
+    __elements = ('eventDescriptor', 'eiActivePeriod', 'eiEventSignals', 'eiTarget')
+
     class eventDescriptor:
-        def __init__(self, eventID, modificationNumber, priority, 
-                     eiMarketContext, createdDateTime, eventStatus, 
-                     testEvent, vtnComment):
-            self.eventID = eventID
-            self.modificationNumber = modificationNumber
-            self.priority = priority
-            self.eiMarketContext = eiMarketContext
-            self.createdDateTime = createdDateTime
-            self.eventStatus = eventStatus
-            self.testEvent = testEvent
-            self.vtnComment = vtnComment
+        __elements = ('eventID', 'modificationNumber', 'priority', \
+                      'eiMarketContext', 'createdDateTime', 'eventStatus', \
+                      'testEvent', 'vtnComment')
+        def __init__(self, **kwargs):
+            missing_elements = elements_exist(EiEvent.eventDescriptor.__elements, 
+                                              kwargs.keys()) 
+            if missing_elements:
+                print missing_elements, " are expected but missing" 
+                return None
+            for k, v in kwargs.iteritems():
+                setattr(self, k, v)
         def __str__(self):
-            return '%s(eventID=%s, modificationNumber=%d, priority=%d, \
-                       eiMarketContext=%s, createdDateTime=%s, \
-                       eventStatus=%s, testEvent=%s, vtnComment=%s)' % \
-                    (self.__class__.__name__, self.eventID, self.modificationNumber, \
-                    self.priority, self.eiMarketContext, self.createdDateTime, \
-                    self.eventStatus.key, self.testEvent, self.vtnComment)
-            
-
+            ed  = '%s:\n'                       % self.__class__.__name__
+            ed += '\teventID            = %s\n' % self.eventID 
+            ed += '\tmodificationNumber = %s\n' % self.modificationNumber
+            ed += '\tpriority           = %s\n' % self.priority
+            ed += '\teiMarketContext    = %s\n' % self.eiMarketContext
+            ed += '\tcreatedDateTime    = %s\n' % self.createdDateTime
+            ed += '\teventStatus        = %s\n' % self.eventStatus
+            ed += '\ttestEvent          = %s\n' % self.testEvent
+            ed += '\tvtnComment         = %s\n' % self.vtnComment
+            return ed
+ 
     class eiActivePeriod:
-        def __init__(self, properties, components):
-            self.properties = properties
-            self.components = components
-
-
-#     <ei:eiActivePeriod>
-#         <xcal:properties>
-#             <xcal:dtstart>
-#                 <xcal:date-time>2001-12-31T12:00:00</xcal:date-time>
-#             </xcal:dtstart>
-#             <xcal:duration>
-#                 <xcal:duration>PT1H</xcal:duration>
-#             </xcal:duration>
-#             <xcal:tolerance>
-#                 <xcal:tolerate>
-#                     <xcal:startafter>PT2H</xcal:startafter>
-#                 </xcal:tolerate>
-#             </xcal:tolerance>
-#             <ei:x-eiNotification>
-#                 <xcal:duration>PT3H</xcal:duration>
-#             </ei:x-eiNotification>
-#             <ei:x-eiRampUp>
-#                 <xcal:duration>PT5H</xcal:duration>
-#             </ei:x-eiRampUp>
-#             <ei:x-eiRecovery>
-#                 <xcal:duration>PT10H</xcal:duration>
-#             </ei:x-eiRecovery>
-#         </xcal:properties>
-#         <xcal:components/>
-#     </ei:eiActivePeriod>
-
-
-
-
+        __elements = ('dtstart', 'duration', 'tolerance', 'x_eiNotification', \
+                      'x_eiRampUp', 'x_eiRecovery', 'components')
+        def __init__(self, **kwargs):
+            missing_elements = elements_exist(EiEvent.eiActivePeriod.__elements, 
+                                              kwargs.keys()) 
+            if missing_elements:
+                print missing_elements, " are expected but missing" 
+                return None
+            for k, v in kwargs.iteritems():
+                setattr(self, k, v)
+        def __str__(self):
+            ap  = '%s:\n'                       % self.__class__.__name__
+            ap += '\tproperties\n'
+            ap += '\t\tdtstart          = %s\n' % self.dtstart
+            ap += '\t\tduration         = %s\n' % self.duration
+            ap += '\t\ttolerance        = %s\n' % self.tolerance
+            ap += '\t\tx-eiNotification = %s\n' % self.x_eiNotification
+            ap += '\t\tx-eiRampUp       = %s\n' % self.x_eiRampUp
+            ap += '\t\tx-eiRecovery     = %s\n' % self.x_eiRecovery
+            ap += '\tcomponents = %s\n' % self.components
+            return ap
 
     class eiEventSignals:
-        def __init__(self):
-            pass
+        __elements = ('signalName', 'signalType', 'signalID', 'currentValue', 'intervals')
+        class intervals:
+            __elements = ('duration', 'uid', 'signalPayload')
+            def __init__(self, **kwargs):
+                missing_elements = elements_exist(EiEvent.eiEventSignals.intervals.__elements, 
+                                                  kwargs.keys()) 
+                if missing_elements:
+                    print missing_elements, " are expected but missing" 
+                    return None
+                for k, v in kwargs.iteritems():
+                    setattr(self, k, v)
+            def __str__(self):
+                intvl  = '\t\tinterval:\n'
+                intvl += '\t\t\tduration      = %s\n' % self.duration
+                intvl += '\t\t\tuid           = %s\n' % self.uid
+                intvl += '\t\t\tsignalPayload = %s\n' % self.signalPayload
+                return intvl
+                
+        def __init__(self, **kwargs):
+            missing_elements = elements_exist(EiEvent.eiEventSignals.__elements, 
+                                              kwargs.keys()) 
+            if missing_elements:
+                print missing_elements, " are expected but missing" 
+                return None
+            for k, v in kwargs.iteritems():
+                if k != 'intervals':
+                    setattr(self, k, v)
+            self.intervals = []
+            for interval in kwargs['intervals']:
+                intvl = EiEvent.eiEventSignals.intervals(**interval)
+                self.intervals.append(intvl) 
+        def __str__(self):
+            es  = '\teiEventSignal:\n'
+            es += '\t\tsignalName   = %s\n' % self.signalName
+            es += '\t\tsignalType   = %s\n' % self.signalType
+            es += '\t\tsignalID     = %s\n' % self.signalID
+            es += '\t\tcurrentValue = %s\n' % self.currentValue
+            for interval in self.intervals:
+                es += str(interval)
+            return es
 
     class eiTarget:
-        def __init__(self):
-            pass
+        __elements = ('groupID', 'resourceID', 'venID', 'partyID')
+        def __init__(self, **kwargs):
+            missing_elements = elements_exist(EiEvent.eiTarget.__elements, 
+                                              kwargs.keys()) 
+            if missing_elements:
+                print missing_elements, " are expected but missing" 
+                return None
+            for k, v in kwargs.iteritems():
+                setattr(self, k, v)
+        def __str__(self):
+            tgt  = '%s:\n'               % self.__class__.__name__
+            tgt += '\tgroupID    = %s\n' % self.groupID
+            tgt += '\tresourceID = %s\n' % self.resourceID
+            tgt += '\tvenID      = %s\n' % self.venID
+            tgt += '\tpartyID    = %s\n' % self.partyID
+            return tgt
 
 
-    def __init__(self):
-        pass
+    def __init__(self, **kwargs):
+        missing_elements = elements_exist(EiEvent.__elements, kwargs.keys()) 
+        if missing_elements:
+            print missing_elements, " are expected but missing" 
+            return None
 
+        self._eventDescriptor = EiEvent.eventDescriptor(**kwargs['eventDescriptor'])
+        self._eiActivePeriod  = EiEvent.eiActivePeriod(**kwargs['eiActivePeriod'])
+        self._eiEventSignals  = []
+        for eventSignal in kwargs['eiEventSignals']:
+            es = EiEvent.eiEventSignals(**eventSignal)
+            self._eiEventSignals.append(es)
+        self._eiTarget = EiEvent.eiTarget(**kwargs['eiTarget'])
 
-
+    def __str__(self):
+        event_str  = "EiEvent:\n"
+        event_str += "--------\n"
+        event_str += str(self._eventDescriptor)
+        event_str += str(self._eiActivePeriod)
+        event_str += 'eiEventSignals:\n'
+        for eventSignal in self._eiEventSignals:
+            event_str += str(eventSignal)
+        event_str += str(self._eiTarget)
+        return event_str

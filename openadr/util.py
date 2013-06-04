@@ -193,20 +193,37 @@ def get_oadr_msg(service, xml_h):
             return msg
     return None
 
-
-# from : {http://openadr.org/oadr-2.0a/2012/07}oadrDistributeEvent
-# to   : oadr:oadrDistributeEvent          
-#def get_nsprefix_element(ns_ele):
-
+#
+# for the given xml document, return a dict 
+# which contains the namespace url and its
+# respective namespace prefix
+#
+# if reverse=True then return
+# dict = {url: nsprefix}
+#
+# if reverse=False then return
+# dict = {nsprefix: url}
+#
 def get_ns(xml_h, reverse=False):
     # convert the incoming is etree.parse handler
     # to etree.XML so that we can get nsmap easily
     xml = etree.XML(etree.tostring(xml_h))
+
+    # TIP: nsmap returns only the namespace in the
+    #      root element of the given xml document.
+    #      to get all namespaces in the given xml
+    #      document, iterate through all elements
+    #      and get the nsmap for each element
+    root = xml_h.getroot()
+    ns = {}
+    for element in root.iter():
+        for nsprefix, url in element.nsmap.iteritems():
+            ns[nsprefix] = url
+
     # reverse dictionaring!! ;)
     if reverse:
-        ns = dict((v, k) for k, v in xml.nsmap.iteritems())
-    else:
-        ns = xml.nsmap
+        ns = dict((v, k) for k, v in ns.iteritems())
+
     return ns
 
 
@@ -293,13 +310,13 @@ def valid_incoming_data(url, xml):
         logging.info(msg)
         return ret_d
 
-    if not valid_profile_msg(oadrCfg.OADR_OP.RECV, oadr_msg):
-        msg = '%s is not subjected to receive (%s\'s) %s ' \
-              'message\n' % (oadrCfg.CONFIG['node_str'],
-              service.key, oadr_msg.key)
-        ret_d['http_resp_msg'] = msg
-        logging.info(msg)
-        return ret_d
+#    if not valid_profile_msg(oadrCfg.OADR_OP.RECV, oadr_msg):
+#        msg = '%s is not subjected to receive (%s\'s) %s ' \
+#              'message\n' % (oadrCfg.CONFIG['node_str'],
+#              service.key, oadr_msg.key)
+#        ret_d['http_resp_msg'] = msg
+#        logging.info(msg)
+#        return ret_d
 
     # on success, return the following.
     del ret_d['http_resp_code']
@@ -310,4 +327,11 @@ def valid_incoming_data(url, xml):
     ret_d['valid'] = True
     
     return ret_d
+
+
+def elements_exist(expected, incoming):
+    s1 = set(expected)
+    s2 = set(incoming)
+    return list(s1.difference(s2))
+
 

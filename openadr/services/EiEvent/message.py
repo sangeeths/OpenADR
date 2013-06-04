@@ -4,12 +4,11 @@ from lxml import etree
 from openadr.util import *
 
 from openadr.services.EiEvent import elements as en     # en = element name
-from openadr.services.EiEvent import EiEvent as EiEvent   
+from openadr.services.EiEvent import EiEvent 
 
 from openadr.services.EiEvent.xpath import *
  
 def register_schema_ns():
-    print "EiEvent.register_schema_ns"
     ns = get_schema_ns()
     for key, value in ns.iteritems():
         etree.register_namespace(key, value)
@@ -18,8 +17,23 @@ def register_schema_ns():
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 
-def read_oadrRequestEvent_msg(request_h):
+def read_oadrRequestEvent_msg(req_h):
     print 'read_oadrRequestEvent_msg'
+
+    xml_rns = get_ns(req_h, reverse=True)   # dict{url:ns}
+    xml_ns  = get_ns(req_h)                 # dict{ns:url}
+
+    xp = get_oadrRequestEvent_xpath(xml_rns)
+
+    oadrRE = {
+    'requestID'  : req_h.xpath(xp['requestID'],  namespaces=xml_ns)[0].text,
+    'venID'      : req_h.xpath(xp['venID'],      namespaces=xml_ns)[0].text,
+    'replyLimit' : req_h.xpath(xp['replyLimit'], namespaces=xml_ns)[0].text
+    }
+    
+    print oadrRE
+    return oadrRE
+
 
 def process_oadrRequestEvent_msg(events_requested):
     print 'process_oadrRequestEvent_msg'
@@ -56,23 +70,28 @@ def compose_oadrRequestEvent_msg(self):
 
 def read_oadrDistributeEvent_msg(req_h):
     print 'read_oadrDistributeEvent_msg'
-    xml_rns = get_ns(req_h, reverse=True)  # dict{url:ns}
-    xml_ns  = get_ns(req_h)  # dict{ns:url}
+
+    xml_rns = get_ns(req_h, reverse=True)   # dict{url:ns}
+    xml_ns  = get_ns(req_h)                 # dict{ns:url}
 
     xp = get_oadrDistributeEvent_xpath(xml_rns)
 
-    oadrDistributeEvent = {}
+    # return dictionary which contains the following info:
+    #   1. eiResponse
+    #   2. requestID
+    #   3. vtnID
+    #   4. EiEvents -> list of EiEvent()'s
+    #   5. RespReqd -> list of event ids
+    oadrDE = {}
 
-    eiResponse_d = {
-    'responseCode': req_h.xpath(xp['responseCode'], namespaces=xml_ns)[0].text,
-    'responseDescription': req_h.xpath(xp['responseDescription'], namespaces=xml_ns)[0].text,
-    'requestID': req_h.xpath(xp['requestID'], namespaces=xml_ns)[0].text
+    oadrDE['eiResponse'] = {
+    'responseCode'        : req_h.xpath(xp['responseCode'],        namespaces=xml_ns)[0].text,
+    'responseDescription' : req_h.xpath(xp['responseDescription'], namespaces=xml_ns)[0].text,
+    'requestID'           : req_h.xpath(xp['requestID'],           namespaces=xml_ns)[0].text
     }
-    print eiResponse_d
 
-    oadrDistributeEvent['eiResponse'] = eiResponse_d
-    oadrDistributeEvent['requestID'] = req_h.xpath(xp['oadr_requestID'], namespaces=xml_ns)[0].text
-    oadrDistributeEvent['vtnID'] = req_h.xpath(xp['vtnID'], namespaces=xml_ns)[0].text
+    oadrDE['requestID'] = req_h.xpath(xp['oadr_requestID'], namespaces=xml_ns)[0].text
+    oadrDE['vtnID']     = req_h.xpath(xp['vtnID'],          namespaces=xml_ns)[0].text
 
     ResponseRequired = {}
     newEvents = []
@@ -81,71 +100,79 @@ def read_oadrDistributeEvent_msg(req_h):
     for oadrEvent in oadrEvents:
         eiEvent = {}
         # eventDescriptor
-        eiEvent['eventID'] = oadrEvent.xpath(xp['eventID'], namespaces=xml_ns)[0].text
-        eiEvent['modificationNumber'] = oadrEvent.xpath(xp['modificationNumber'], namespaces=xml_ns)[0].text
-        eiEvent['priority'] = oadrEvent.xpath(xp['priority'], namespaces=xml_ns)[0].text
-        eiEvent['marketContext'] = oadrEvent.xpath(xp['marketContext'], namespaces=xml_ns)[0].text
-        eiEvent['createdDateTime'] = oadrEvent.xpath(xp['createdDateTime'], namespaces=xml_ns)[0].text
-        eiEvent['eventStatus'] = oadrEvent.xpath(xp['eventStatus'], namespaces=xml_ns)[0].text
-        eiEvent['testEvent'] = oadrEvent.xpath(xp['testEvent'], namespaces=xml_ns)[0].text
-        eiEvent['vtnComment'] = oadrEvent.xpath(xp['vtnComment'], namespaces=xml_ns)[0].text
+        eiEvent['eventDescriptor'] = {
+        'eventID'            : oadrEvent.xpath(xp['eventID'],            namespaces=xml_ns)[0].text,
+        'modificationNumber' : oadrEvent.xpath(xp['modificationNumber'], namespaces=xml_ns)[0].text,
+        'priority'           : oadrEvent.xpath(xp['priority'],           namespaces=xml_ns)[0].text,
+        'eiMarketContext'    : oadrEvent.xpath(xp['eiMarketContext'],    namespaces=xml_ns)[0].text,
+        'createdDateTime'    : oadrEvent.xpath(xp['createdDateTime'],    namespaces=xml_ns)[0].text,
+        'eventStatus'        : oadrEvent.xpath(xp['eventStatus'],        namespaces=xml_ns)[0].text,
+        'testEvent'          : oadrEvent.xpath(xp['testEvent'],          namespaces=xml_ns)[0].text,
+        'vtnComment'         : oadrEvent.xpath(xp['vtnComment'],         namespaces=xml_ns)[0].text
+        }
         # eiActivePeriod
-        eiEvent['dtstart'] = oadrEvent.xpath(xp['dtstart'], namespaces=xml_ns)[0].text
-        eiEvent['duration'] = oadrEvent.xpath(xp['duration'], namespaces=xml_ns)[0].text
-        eiEvent['tolerance'] = oadrEvent.xpath(xp['tolerance'], namespaces=xml_ns)[0].text
-        eiEvent['x_eiNotification'] = oadrEvent.xpath(xp['x_eiNotification'], namespaces=xml_ns)[0].text
-        eiEvent['x_eiRampUp'] = oadrEvent.xpath(xp['x_eiRampUp'], namespaces=xml_ns)[0].text
-        eiEvent['x_eiRecovery'] = oadrEvent.xpath(xp['x_eiRecovery'], namespaces=xml_ns)[0].text
-        eiEvent['components'] = oadrEvent.xpath(xp['components'], namespaces=xml_ns)[0].text
+        eiEvent['eiActivePeriod'] = {
+        'dtstart'          : oadrEvent.xpath(xp['dtstart'],          namespaces=xml_ns)[0].text,
+        'duration'         : oadrEvent.xpath(xp['duration'],         namespaces=xml_ns)[0].text,
+        'tolerance'        : oadrEvent.xpath(xp['tolerance'],        namespaces=xml_ns)[0].text,
+        'x_eiNotification' : oadrEvent.xpath(xp['x_eiNotification'], namespaces=xml_ns)[0].text,
+        'x_eiRampUp'       : oadrEvent.xpath(xp['x_eiRampUp'],       namespaces=xml_ns)[0].text,
+        'x_eiRecovery'     : oadrEvent.xpath(xp['x_eiRecovery'],     namespaces=xml_ns)[0].text,
+        'components'       : oadrEvent.xpath(xp['components'],       namespaces=xml_ns)[0].text
+        }
         # eiEventSignals
         eiEventSignals = []
         eiEventSignals_e = oadrEvent.xpath(xp['eiEventSignal'], namespaces=xml_ns)
         for eiEventSignal in eiEventSignals_e:
-            eventSignal = {}
-            eventSignal['signalName'] = eiEventSignal.xpath(xp['signalName'], namespaces=xml_ns)[0].text
-            eventSignal['signalType'] = eiEventSignal.xpath(xp['signalType'], namespaces=xml_ns)[0].text
-            eventSignal['signalID'] = eiEventSignal.xpath(xp['signalID'], namespaces=xml_ns)[0].text
-            eventSignal['currentValue'] = eiEventSignal.xpath(xp['currentValue'], namespaces=xml_ns)[0].text
+            eventSignal = {
+            'signalName'   : eiEventSignal.xpath(xp['signalName'],   namespaces=xml_ns)[0].text,
+            'signalType'   : eiEventSignal.xpath(xp['signalType'],   namespaces=xml_ns)[0].text,
+            'signalID'     : eiEventSignal.xpath(xp['signalID'],     namespaces=xml_ns)[0].text,
+            'currentValue' : eiEventSignal.xpath(xp['currentValue'], namespaces=xml_ns)[0].text
+            }
             # intervals
             intervals = []
             intervals_e = eiEventSignal.xpath(xp['interval'], namespaces=xml_ns) 
             for interval in intervals_e:
-                interval_d = {}    
-                interval_d['duration'] = interval.xpath(xp['i_duration'], namespaces=xml_ns)[0].text
-                interval_d['uid'] = interval.xpath(xp['i_uid'], namespaces=xml_ns)[0].text
-                interval_d['payload'] = interval.xpath(xp['i_payload'], namespaces=xml_ns)[0].text
+                interval_d = {
+                'duration'      : interval.xpath(xp['i_duration'], namespaces=xml_ns)[0].text,
+                'uid'           : interval.xpath(xp['i_uid'],      namespaces=xml_ns)[0].text,
+                'signalPayload' : interval.xpath(xp['i_payload'],  namespaces=xml_ns)[0].text
+                }
                 intervals.append(interval_d)
             eventSignal['intervals'] = intervals
             eiEventSignals.append(eventSignal)
         eiEvent['eiEventSignals'] = eiEventSignals
         # eiTarget
-        eiEvent['groupID'] = oadrEvent.xpath(xp['groupID'], namespaces=xml_ns)[0].text
-        eiEvent['resourceID'] = oadrEvent.xpath(xp['resourceID'], namespaces=xml_ns)[0].text
-        eiEvent['venID'] = oadrEvent.xpath(xp['venID'], namespaces=xml_ns)[0].text
-        eiEvent['partyID'] = oadrEvent.xpath(xp['partyID'], namespaces=xml_ns)[0].text
-        
-        print eiEvent
-        # create EiEvent instance here
-        # eievent = EiEvent(eiEvent)
-        newEvents.append(eiEvent)
+        eiEvent['eiTarget'] = {
+        'groupID'    : oadrEvent.xpath(xp['groupID'],    namespaces=xml_ns)[0].text,
+        'resourceID' : oadrEvent.xpath(xp['resourceID'], namespaces=xml_ns)[0].text,
+        'venID'      : oadrEvent.xpath(xp['venID'],      namespaces=xml_ns)[0].text,
+        'partyID'    : oadrEvent.xpath(xp['partyID'],    namespaces=xml_ns)[0].text
+        }
 
+        newEvents.append(EiEvent.EiEvent(**eiEvent))
+        
         # check oadrResponseRequired for the current event
         ResponseReq = oadrEvent.xpath(xp['ResponseRequired'], namespaces=xml_ns)[0].text
-        ResponseRequired[eiEvent['eventID']] = ResponseReq
+        ResponseRequired[eiEvent['eventDescriptor']['eventID']] = ResponseReq
 
-    oadrDistributeEvent['oadrResponseRequired'] = ResponseRequired
-    oadrDistributeEvent['EiEvents'] = newEvents
+    oadrDE['RespReqd'] = ResponseRequired
+    oadrDE['EiEvents'] = newEvents
 
-    print oadrDistributeEvent
-
-
-
+    print oadrDE
+    return oadrDE
 
 
 
-
-def process_oadrDistributeEvent_msg(events_in):
+def process_oadrDistributeEvent_msg(**kwargs):
     print 'process_oadrDistributeEvent_msg'
+    for k, v in kwargs.iteritems():
+        print "key   = ", k
+        print "value = ", v
+    for event in kwargs['EiEvents']:
+        print str(event)
+
 
 def compose_oadrDistributeEvent_msg(self):
 #
@@ -327,11 +354,6 @@ def compose_oadrDistributeEvent_msg(self):
         # oadrResponseRequired element and its value
         etree.SubElement(e_oadrEvent, en.oadrResponseRequired).text = 'always'
 
-    print '============================='
-    tree = etree.ElementTree(e_oadrDistributeEvent)
-    print tree.getpath(e_requestID)
-    print '============================='
-
     oadrDistributeEventMsg = etree.tostring(e_oadrDistributeEvent, 
                                             pretty_print=True, 
                                             xml_declaration=True, 
@@ -342,8 +364,47 @@ def compose_oadrDistributeEvent_msg(self):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 
-def read_oadrCreatedEvent_msg(request_h):
+def read_oadrCreatedEvent_msg(req_h):
     print 'read_oadrCreatedEvent_msg'
+    xml_rns = get_ns(req_h, reverse=True)   # dict{url:ns}
+    xml_ns  = get_ns(req_h)                 # dict{ns:url}
+
+    xp = get_oadrCreatedEvent_xpath(xml_rns)
+
+    oadrCE = {}
+
+    # eiResponse
+    # NOTE: there will be only one eiResponse element in 
+    #       oadrCreatedEvent. So we can do eiResponse_e[0]
+    #       without any issues.
+    eiResponse_e = req_h.xpath(xp['eiResponse'], namespaces=xml_ns)
+    oadrCE['eiResponse'] = {
+    'responseCode'        : eiResponse_e[0].xpath(xp['responseCode'],        namespaces=xml_ns)[0].text,
+    'responseDescription' : eiResponse_e[0].xpath(xp['responseDescription'], namespaces=xml_ns)[0].text,
+    'requestID'           : eiResponse_e[0].xpath(xp['requestID'],           namespaces=xml_ns)[0].text
+    }
+
+    # venID
+    oadrCE['venID'] = req_h.xpath(xp['venID'], namespaces=xml_ns)[0].text
+
+    # eventResponses
+    eventResponses = []
+    eventResponse_e = req_h.xpath(xp['eventResponse'], namespaces=xml_ns)
+    for er in eventResponse_e:
+        er_d = {
+        'responseCode'        : er.xpath(xp['responseCode'],        namespaces=xml_ns)[0].text,
+        'responseDescription' : er.xpath(xp['responseDescription'], namespaces=xml_ns)[0].text,
+        'requestID'           : er.xpath(xp['requestID'],           namespaces=xml_ns)[0].text,
+        'eventID'             : er.xpath(xp['eventID'],             namespaces=xml_ns)[0].text,
+        'modificationNumber'  : er.xpath(xp['modificationNumber'],  namespaces=xml_ns)[0].text,
+        'optType'             : er.xpath(xp['optType'],             namespaces=xml_ns)[0].text
+        }
+        eventResponses.append(er_d)
+    oadrCE['eventResponses'] = eventResponses
+
+    print oadrCE
+    return oadrCE
+
 
 def process_oadrCreatedEvent_msg(events_created):
     print 'process_oadrCreatedEvent_msg'
@@ -382,7 +443,7 @@ def compose_oadrCreatedEvent_msg(self):
     e_eiCreatedEvent = etree.SubElement(e_oadrCreatedEvent, en.eiCreatedEvent)
 
     # eiResponse element and its sub element with values
-    e_eiResponse               = etree.SubElement(e_eiCreatedEvent, en.eiResponse)
+    e_eiResponse = etree.SubElement(e_eiCreatedEvent, en.eiResponse)
     etree.SubElement(e_eiResponse, en.responseCode).text = 'ei:responseCode'
     etree.SubElement(e_eiResponse, en.responseDescription).text = 'ei:responseDescription'
     etree.SubElement(e_eiResponse, en.requestID).text = 'pyld:requestID'
@@ -416,8 +477,22 @@ def compose_oadrCreatedEvent_msg(self):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 
-def read_oadrResponse_msg(request_h):
+def read_oadrResponse_msg(req_h):
     print 'read_oadrResponse_msg'
+    xml_rns = get_ns(req_h, reverse=True)   # dict{url:ns}
+    xml_ns  = get_ns(req_h)                 # dict{ns:url}
+
+    xp = get_oadrResponse_xpath(xml_rns)
+
+    oadrResponse = {
+    'responseCode'        : req_h.xpath(xp['responseCode'],        namespaces=xml_ns)[0].text,
+    'responseDescription' : req_h.xpath(xp['responseDescription'], namespaces=xml_ns)[0].text,
+    'requestID'           : req_h.xpath(xp['requestID'],           namespaces=xml_ns)[0].text
+    }
+
+    print oadrResponse
+    return oadrResponse
+    
 
 def process_oadrResponse_msg(response):
     print 'process_oadrResponse_msg'
