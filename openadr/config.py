@@ -4,12 +4,14 @@ from enum import Enum
 import sys
 import logging
 
+
+
 # # # # # # # # # # # # # # # # # # # # # # # #
 #
 #            Logging Configuration
 #
 # Log file name
-LOG_FILENAME = '/tmp/openadr.log'
+LOG_FILENAME = '/tmp/VEN.log'
 #
 # Log level
 LOG_LEVEL = logging.DEBUG
@@ -328,7 +330,7 @@ XSD_NS = {OADR_PROFILE.A: [SCHEMA_OADR_20A, SCHEMA_OADR_EI_20A,
 HOSTNAME = 'localhost'
 #
 # IP Address
-IPADDR = '192.168.0.195'
+IPADDR = '172.16.11.128'
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -359,7 +361,7 @@ VTN_URL_PREFIX = 'rioVTN'
 #   config.NODE == OADR_NODE.VEN 
 #
 # HTTP port of VEN
-HTTP_VEN_PORT = 9001
+HTTP_VEN_PORT = 9022
 #
 # VEN URL prefix
 VEN_URL_PREFIX = 'rioVEN'
@@ -417,6 +419,23 @@ OADR_NODE_CONFIG = {
 CONFIG = OADR_NODE_CONFIG[NODE]
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # #
+#
+#            Entity Information
+#
+ENTITY = {'type'    : OADR_NODE.VEN, 
+		  'ipaddr'  : '172.16.11.128', 
+		  'port'    : '9011', 
+		  'prefix'  : 'rioVTN',
+		  'profile' : OADR_PROFILE.A}
+#
+# # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
 
 
 # __END__

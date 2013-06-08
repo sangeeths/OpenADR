@@ -39,7 +39,7 @@ def read_oadrRequestEvent_msg(req_h):
 def process_oadrRequestEvent_msg(events_requested):
     print 'process_oadrRequestEvent_msg'
 
-def compose_oadrRequestEvent_msg(self):
+def compose_oadrRequestEvent_msg():
 #    
 # <oadr:oadrRequestEvent> 
 #     <pyld:eiRequestEvent>

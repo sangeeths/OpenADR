@@ -58,28 +58,27 @@ def print_shutdown_message():
 #   key   = OADR_SERVICE.<service-name>
 #   value = absolute url for the service
 #  
-def get_profile_urls():
+def get_profile_urls(ipaddr=oadrCfg.IPADDR, 
+                     port=oadrCfg.CONFIG['port'],
+                     prefix=oadrCfg.CONFIG['prefix'],
+                     profile=oadrCfg.PROFILE):
 
     # dict which contains service url
     # for the given profile 
     urls = {}
 
     # compose the port number for url
-    port = ''
-    if oadrCfg.CONFIG['port']:
-        port = ':' + str(oadrCfg.CONFIG['port']) 
+    port = ':' + str(port) 
     
     # compose the prefix string for the url
-    prefix = ''
-    if oadrCfg.CONFIG['prefix']:
-        prefix = oadrCfg.CONFIG['prefix'] + '/' 
+    prefix = prefix + '/' 
     
     # compose base url
     base_url = 'http://%s%s/%sOpenADR2/Simple/' % \
-               (oadrCfg.IPADDR, port, prefix)
+               (ipaddr, port, prefix)
 
     # final url = base url + OADR_SERVICE
-    for service in oadrCfg.SERVICE[oadrCfg.PROFILE]:
+    for service in oadrCfg.SERVICE[profile]:
         urls[service] = base_url + service.key
 
     return urls
@@ -310,13 +309,13 @@ def valid_incoming_data(url, xml):
         logging.info(msg)
         return ret_d
 
-#    if not valid_profile_msg(oadrCfg.OADR_OP.RECV, oadr_msg):
-#        msg = '%s is not subjected to receive (%s\'s) %s ' \
-#              'message\n' % (oadrCfg.CONFIG['node_str'],
-#              service.key, oadr_msg.key)
-#        ret_d['http_resp_msg'] = msg
-#        logging.info(msg)
-#        return ret_d
+    if not valid_profile_msg(oadrCfg.OADR_OP.RECV, oadr_msg):
+        msg = '%s is not subjected to receive (%s\'s) %s ' \
+              'message\n' % (oadrCfg.CONFIG['node_str'],
+              service.key, oadr_msg.key)
+        ret_d['http_resp_msg'] = msg
+        logging.info(msg)
+        return ret_d
 
     # on success, return the following.
     del ret_d['http_resp_code']

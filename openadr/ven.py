@@ -1,8 +1,11 @@
 from BaseHTTPServer import BaseHTTPRequestHandler
+import urllib2
+import urllib
 
 from openadr import config as oadrCfg
 from openadr.util import *
 from openadr.services.EiEvent import manager as EiEventManager
+from openadr.services.EiEvent.message import compose_oadrRequestEvent_msg
 
 def VENHttpServerStartCB():
     print "this is VEN Http Server Start Callback"
@@ -20,8 +23,44 @@ def VENHttpServerStartCB():
  
 
 class VENHttpServer(BaseHTTPRequestHandler):
-    def do_POST(self):
+    
+    @classmethod
+    def pre_start_cb(cls):
+        print 'VENHttpServer_pre_start_cb'
+
+    @classmethod
+    def post_start_cb(cls):
+        print 'VENHttpServer_post_start_cb'
+        urls = get_profile_urls(ipaddr=oadrCfg.ENTITY['ipaddr'], 
+                                port=oadrCfg.ENTITY['port'], 
+                                prefix=oadrCfg.ENTITY['prefix'],
+                                profile=oadrCfg.ENTITY['profile'])
+        request_url = urls[oadrCfg.OADR_SERVICE.EiEvent]
+        print "URLS : ", urls
+        print "request_url : ", request_url
         
+        oadrRE = compose_oadrRequestEvent_msg()
+        print "oadrRE : ", oadrRE
+ 
+        #request_data = urllib.urlencode(oadrRE)
+        
+        req = urllib2.Request(request_url, oadrRE)
+        response = urllib2.urlopen(req)
+ 
+        print "response = ", response.read()
+ 
+   
+
+
+    @classmethod
+    def pre_stop_cb(cls):
+        print 'VENHttpServer_pre_stop_cb'
+
+    @classmethod
+    def post_stop_cb(cls):
+        print 'VENHttpServer_post_stop_cb'
+
+    def do_POST(self):
         # get the url and data
         dlen = int(self.headers.getheader('content-length'))
         data = self.rfile.read(dlen)
@@ -84,6 +123,7 @@ def process_ven_message(service, message, xml_h):
     if service == oadrCfg.OADR_SERVICE.EiEvent:
         response_xml_s = EiEventManager.Response(xml_h)
         print 'response_xml_s : %s' % response_xml_s
+        msg_d['http_resp_msg'] = response_xml_s
 
     return msg_d
 
