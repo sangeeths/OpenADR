@@ -9,7 +9,7 @@ import logging
 #            Logging Configuration
 #
 # Log file name
-LOG_FILENAME = '/tmp/openadr.log'
+LOG_FILENAME = '/tmp/VTN.log'
 #
 # Log level
 LOG_LEVEL = logging.DEBUG
@@ -123,7 +123,7 @@ OADR_NODE = Enum('VEN', 'VTN', 'VN')
 #   -> OADR_NODE.VN  for both VEN and VTN
 # Anything other than the above values are 
 # considered invalid node type
-NODE = OADR_NODE.VEN
+NODE = OADR_NODE.VTN
 #
 # HTTP modes
 # Read-only: Do Not Change
@@ -135,7 +135,7 @@ HTTP_MODE = Enum('PUSH', 'PULL')
 #   -> HTTP_MODE.PUSH
 # Anything other than the above values are 
 # considered invalid mode for config.NODE
-MODE = HTTP_MODE.PULL
+MODE = HTTP_MODE.PUSH
 #
 # Supported operations: send and receive
 OADR_OP = Enum('SEND', 'RECV')
@@ -328,7 +328,7 @@ XSD_NS = {OADR_PROFILE.A: [SCHEMA_OADR_20A, SCHEMA_OADR_EI_20A,
 HOSTNAME = 'localhost'
 #
 # IP Address
-IPADDR = '192.168.0.195'
+IPADDR = '172.16.11.128'
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -342,7 +342,7 @@ IPADDR = '192.168.0.195'
 #   config.NODE == OADR_NODE.VEN 
 #
 # HTTP port of VTN
-HTTP_VTN_PORT = 9000
+HTTP_VTN_PORT = 9011
 #
 # VTN URL prefix
 VTN_URL_PREFIX = 'rioVTN'

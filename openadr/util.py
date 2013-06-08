@@ -310,13 +310,13 @@ def valid_incoming_data(url, xml):
         logging.info(msg)
         return ret_d
 
-#    if not valid_profile_msg(oadrCfg.OADR_OP.RECV, oadr_msg):
-#        msg = '%s is not subjected to receive (%s\'s) %s ' \
-#              'message\n' % (oadrCfg.CONFIG['node_str'],
-#              service.key, oadr_msg.key)
-#        ret_d['http_resp_msg'] = msg
-#        logging.info(msg)
-#        return ret_d
+    if not valid_profile_msg(oadrCfg.OADR_OP.RECV, oadr_msg):
+        msg = '%s is not subjected to receive (%s\'s) %s ' \
+              'message\n' % (oadrCfg.CONFIG['node_str'],
+              service.key, oadr_msg.key)
+        ret_d['http_resp_msg'] = msg
+        logging.info(msg)
+        return ret_d
 
     # on success, return the following.
     del ret_d['http_resp_code']
