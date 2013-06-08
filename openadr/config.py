@@ -125,7 +125,7 @@ OADR_NODE = Enum('VEN', 'VTN', 'VN')
 #   -> OADR_NODE.VN  for both VEN and VTN
 # Anything other than the above values are 
 # considered invalid node type
-NODE = OADR_NODE.VEN
+NODE = OADR_NODE.VTN
 #
 # HTTP modes
 # Read-only: Do Not Change
@@ -137,7 +137,7 @@ HTTP_MODE = Enum('PUSH', 'PULL')
 #   -> HTTP_MODE.PUSH
 # Anything other than the above values are 
 # considered invalid mode for config.NODE
-MODE = HTTP_MODE.PULL
+MODE = HTTP_MODE.PUSH
 #
 # Supported operations: send and receive
 OADR_OP = Enum('SEND', 'RECV')
@@ -344,7 +344,7 @@ IPADDR = '172.16.11.128'
 #   config.NODE == OADR_NODE.VEN 
 #
 # HTTP port of VTN
-HTTP_VTN_PORT = 9000
+HTTP_VTN_PORT = 9011
 #
 # VTN URL prefix
 VTN_URL_PREFIX = 'rioVTN'

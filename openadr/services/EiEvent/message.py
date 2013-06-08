@@ -24,6 +24,11 @@ def read_oadrRequestEvent_msg(req_h):
     xml_rns = get_ns(req_h, reverse=True)   # dict{url:ns}
     xml_ns  = get_ns(req_h)                 # dict{ns:url}
 
+    print "xml_rns : ", xml_rns
+    print "---------------------"
+    print "xml_ns : ", xml_ns
+
+
     xp = get_oadrRequestEvent_xpath(xml_rns)
 
     oadrRE = {

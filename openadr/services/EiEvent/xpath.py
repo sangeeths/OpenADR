@@ -12,7 +12,8 @@ class oadrNSP:
             if not k.startswith('__'):
                 url = v.strip('{').rsplit('}')[0]
                 ele = v.strip('{').rsplit('}')[1]
-                self._elements[v] = self._ns[url] + ':' + ele
+                if url in self._ns.keys():
+                    self._elements[v] = self._ns[url] + ':' + ele
     def getAllElements(self):
         return self._elements
     def printAllElements(self):
@@ -22,8 +23,8 @@ class oadrNSP:
 
 
 def get_oadrDistributeEvent_xpath(ns):
-    nsp = oadrNSP(ns).getAllElements()
-   
+    nsp = oadrNSP(ns).getAllElements()   
+
     xpath_d = {
     # absolute path for eiResponse elements
     'responseCode'        : '/%s/%s/%s' % (nsp[en.oadrDistributeEvent], 
@@ -165,6 +166,10 @@ def get_oadrDistributeEvent_xpath(ns):
 def get_oadrRequestEvent_xpath(ns):
     nsp = oadrNSP(ns).getAllElements()
     
+    print "-----------------------"
+    print nsp
+    print "-----------------------"
+
     xpath_d = {
     # absolute path for eiResponse element
     'requestID'  : '/%s/%s/%s' % (nsp[en.oadrRequestEvent], 
