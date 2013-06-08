@@ -10,7 +10,7 @@
   <oadr:oadrEvent>
     <ei:eiEvent xmlns:ei="http://docs.oasis-open.org/ns/energyinterop/201110">
       <ei:eventDescriptor>
-        <ei:eventID>ei:eventID</ei:eventID>
+        <ei:eventID>345435</ei:eventID>
         <ei:modificationNumber>0</ei:modificationNumber>
         <ei:priority>0</ei:priority>
         <ei:eiMarketContext>

@@ -30,6 +30,10 @@ class EiEvent:
             ed += '\ttestEvent          = %s\n' % self.testEvent
             ed += '\tvtnComment         = %s\n' % self.vtnComment
             return ed
+        def getDict(self):
+            return self.__dict__
+
+
  
     class eiActivePeriod:
         __elements = ('dtstart', 'duration', 'tolerance', 'x_eiNotification', \
@@ -53,6 +57,8 @@ class EiEvent:
             ap += '\t\tx-eiRecovery     = %s\n' % self.x_eiRecovery
             ap += '\tcomponents = %s\n' % self.components
             return ap
+        def getDict(self):
+            return self.__dict__
 
     class eiEventSignals:
         __elements = ('signalName', 'signalType', 'signalID', 'currentValue', 'intervals')
@@ -72,6 +78,8 @@ class EiEvent:
                 intvl += '\t\t\tuid           = %s\n' % self.uid
                 intvl += '\t\t\tsignalPayload = %s\n' % self.signalPayload
                 return intvl
+            def getDict(self):
+                return self.__dict__
                 
         def __init__(self, **kwargs):
             missing_elements = elements_exist(EiEvent.eiEventSignals.__elements, 
@@ -95,6 +103,18 @@ class EiEvent:
             for interval in self.intervals:
                 es += str(interval)
             return es
+        def getDict(self):
+            ES_d = {
+            'signalName'   : self.signalName,
+            'signalType'   : self.signalType,
+            'signalID'     : self.signalID,
+            'currentValue' : self.currentValue
+            }
+            intervals = []
+            for interval in self.intervals:
+                intervals.append(interval.getDict())
+            ES_d['intervals'] = intervals
+            return ES_d
 
     class eiTarget:
         __elements = ('groupID', 'resourceID', 'venID', 'partyID')
@@ -113,6 +133,8 @@ class EiEvent:
             tgt += '\tvenID      = %s\n' % self.venID
             tgt += '\tpartyID    = %s\n' % self.partyID
             return tgt
+        def getDict(self):
+            return self.__dict__
 
 
     def __init__(self, **kwargs):
@@ -121,21 +143,34 @@ class EiEvent:
             print missing_elements, " are expected but missing" 
             return None
 
-        self._eventDescriptor = EiEvent.eventDescriptor(**kwargs['eventDescriptor'])
-        self._eiActivePeriod  = EiEvent.eiActivePeriod(**kwargs['eiActivePeriod'])
-        self._eiEventSignals  = []
+        self.eventDescriptor = EiEvent.eventDescriptor(**kwargs['eventDescriptor'])
+        self.eiActivePeriod  = EiEvent.eiActivePeriod(**kwargs['eiActivePeriod'])
+        self.eiEventSignals  = []
         for eventSignal in kwargs['eiEventSignals']:
             es = EiEvent.eiEventSignals(**eventSignal)
-            self._eiEventSignals.append(es)
-        self._eiTarget = EiEvent.eiTarget(**kwargs['eiTarget'])
+            self.eiEventSignals.append(es)
+        self.eiTarget = EiEvent.eiTarget(**kwargs['eiTarget'])
 
     def __str__(self):
         event_str  = "EiEvent:\n"
         event_str += "--------\n"
-        event_str += str(self._eventDescriptor)
-        event_str += str(self._eiActivePeriod)
+        event_str += str(self.eventDescriptor)
+        event_str += str(self.eiActivePeriod)
         event_str += 'eiEventSignals:\n'
-        for eventSignal in self._eiEventSignals:
+        for eventSignal in self.eiEventSignals:
             event_str += str(eventSignal)
-        event_str += str(self._eiTarget)
+        event_str += str(self.eiTarget)
         return event_str
+
+    def getDict(self):
+        EiEvent_d = {
+        'eventDescriptor' : self.eventDescriptor.getDict(),
+        'eiActivePeriod'  : self.eiActivePeriod.getDict(),
+        'eiTarget'        : self.eiTarget.getDict()
+        }
+        eiEventSignals = []
+        for eventSignal in self.eiEventSignals:
+            eiEventSignals.append(eventSignal.getDict())
+        EiEvent_d['eiEventSignals'] = eiEventSignals
+        return EiEvent_d
+

@@ -4,10 +4,11 @@ from lxml import etree
 from openadr.util import *
 
 from openadr.services.EiEvent import elements as en     # en = element name
-from openadr.services.EiEvent import EiEvent 
+from openadr.services.EiEvent.EiEvent import EiEvent 
 
 from openadr.services.EiEvent.xpath import *
- 
+
+
 def register_schema_ns():
     ns = get_schema_ns()
     for key, value in ns.iteritems():
@@ -151,7 +152,7 @@ def read_oadrDistributeEvent_msg(req_h):
         'partyID'    : oadrEvent.xpath(xp['partyID'],    namespaces=xml_ns)[0].text
         }
 
-        newEvents.append(EiEvent.EiEvent(**eiEvent))
+        newEvents.append(EiEvent(**eiEvent))
         
         # check oadrResponseRequired for the current event
         ResponseReq = oadrEvent.xpath(xp['ResponseRequired'], namespaces=xml_ns)[0].text
@@ -165,13 +166,17 @@ def read_oadrDistributeEvent_msg(req_h):
 
 
 
-def process_oadrDistributeEvent_msg(**kwargs):
-    print 'process_oadrDistributeEvent_msg'
-    for k, v in kwargs.iteritems():
-        print "key   = ", k
-        print "value = ", v
-    for event in kwargs['EiEvents']:
-        print str(event)
+#def process_oadrDistributeEvent_msg(**kwargs):
+#    em = EiEventManager()
+#    print 'process_oadrDistributeEvent_msg'
+#    for k, v in kwargs.iteritems():
+#        print "key   = ", k
+#        print "value = ", v
+#    for event in kwargs['EiEvents']:
+#        print "Adding the following EiEvent"
+#        print str(event)
+#        em.addEiEvent(event)
+        
 
 
 def compose_oadrDistributeEvent_msg(self):

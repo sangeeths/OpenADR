@@ -34,6 +34,10 @@ LOG_STREAM = sys.stdout
 # absolute filesystem path to the OpenADR project directory
 OPENADR_ROOT = dirname(abspath(__file__))
 #
+# absolute filesystem path to the persistence directory
+# this is where all the pickle databases are stored!
+PERSISTENCE_ROOT = normpath(join(OPENADR_ROOT, 'persistence'))
+#
 # configuration file for OpenADR i.e. this file! ;)
 # used as a reference in exceptions and error messages
 OADR_CONFIG_FILE = abspath(__file__)
