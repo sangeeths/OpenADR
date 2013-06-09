@@ -4,14 +4,12 @@ from enum import Enum
 import sys
 import logging
 
-
-
 # # # # # # # # # # # # # # # # # # # # # # # #
 #
 #            Logging Configuration
 #
 # Log file name
-LOG_FILENAME = '/tmp/VEN.log'
+LOG_FILENAME = '/tmp/VTN.log'
 #
 # Log level
 LOG_LEVEL = logging.DEBUG
@@ -125,7 +123,7 @@ OADR_NODE = Enum('VEN', 'VTN', 'VN')
 #   -> OADR_NODE.VN  for both VEN and VTN
 # Anything other than the above values are 
 # considered invalid node type
-NODE = OADR_NODE.VEN
+NODE = OADR_NODE.VTN
 #
 # HTTP modes
 # Read-only: Do Not Change
@@ -137,7 +135,7 @@ HTTP_MODE = Enum('PUSH', 'PULL')
 #   -> HTTP_MODE.PUSH
 # Anything other than the above values are 
 # considered invalid mode for config.NODE
-MODE = HTTP_MODE.PULL
+MODE = HTTP_MODE.PUSH
 #
 # Supported operations: send and receive
 OADR_OP = Enum('SEND', 'RECV')
@@ -344,7 +342,7 @@ IPADDR = '172.16.11.128'
 #   config.NODE == OADR_NODE.VEN 
 #
 # HTTP port of VTN
-HTTP_VTN_PORT = 9000
+HTTP_VTN_PORT = 9011
 #
 # VTN URL prefix
 VTN_URL_PREFIX = 'rioVTN'
@@ -361,7 +359,7 @@ VTN_URL_PREFIX = 'rioVTN'
 #   config.NODE == OADR_NODE.VEN 
 #
 # HTTP port of VEN
-HTTP_VEN_PORT = 9022
+HTTP_VEN_PORT = 9001
 #
 # VEN URL prefix
 VEN_URL_PREFIX = 'rioVEN'
@@ -419,23 +417,6 @@ OADR_NODE_CONFIG = {
 CONFIG = OADR_NODE_CONFIG[NODE]
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
-
-
-
-# # # # # # # # # # # # # # # # # # # # # # # #
-#
-#            Entity Information
-#
-ENTITY = {'type'    : OADR_NODE.VEN, 
-		  'ipaddr'  : '172.16.11.128', 
-		  'port'    : '9011', 
-		  'prefix'  : 'rioVTN',
-		  'profile' : OADR_PROFILE.A}
-#
-# # # # # # # # # # # # # # # # # # # # # # # #
-
-
-
 
 
 # __END__
