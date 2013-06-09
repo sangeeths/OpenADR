@@ -259,25 +259,25 @@ def get_schema_ns(prefix=None):
 #
 # returns a dict - ret_d 
 # ret_d = return dictionary
-#   ret_d['valid']          -> True/False
+#   ret_d['valid'] -> True/False
 #
 # on success (ret_d['valid'] == True):
-#       variable                example
-#   ret_d['oadr_service']   -> oadrCfg.OADR_SERVICE.EiEvent
-#   ret_d['oadr_message']   -> oadrCfg.OADR_EIEVENT.oadrDistributeEvent
-#   ret_d['oadr_xml_msg_h'] -> lxml handle to the incoming 
-#                               oadr xml message
+#       variable            example
+#   ret_d['service'] -> oadrCfg.OADR_SERVICE.EiEvent
+#   ret_d['message'] -> oadrCfg.OADR_EIEVENT.oadrDistributeEvent
+#   ret_d['xml_h']   -> lxml handle to the incoming 
+#                       oadr xml message
 #
 # on failure (ret_d['valid'] == False):
-#       variable                example
-#   ret_d['http_resp_code'] -> 200
-#   ret_d['http_resp_msg']  -> 'Sample message'
+#       variable         example
+#   ret_d['code'] -> 200
+#   ret_d['msg']  -> 'Sample message'
 #
 def valid_incoming_data(url, xml):
 
-    ret_d= {'valid': False,
-            'http_resp_code': 200,
-            'http_resp_msg' : ''
+    ret_d= {'valid' : False,
+            'code'  : 200,
+            'msg'   : ''
            }
 
     service = valid_url(url)
@@ -288,7 +288,7 @@ def valid_incoming_data(url, xml):
         urls = get_profile_urls()
         for svc, url in urls.iteritems():
             msg += '%15s : %s\n' % (svc.key, url)
-        ret_d['http_resp_msg'] = msg
+        ret_d['msg'] = msg
         logging.info(msg)
         return ret_d
 
@@ -297,32 +297,32 @@ def valid_incoming_data(url, xml):
         msg = 'The incoming XML data is not ' \
               'compliant with OpenADR %s Profile ' \
               'Schema\n' % (oadrCfg.PROFILE)
-        ret_d['http_resp_msg'] = msg
+        ret_d['msg'] = msg
         logging.info(msg)
         return ret_d
 
-    oadr_msg = get_oadr_msg(service, xml_h)
-    if oadr_msg is None:
+    message = get_oadr_msg(service, xml_h)
+    if message is None:
         msg = '%s is not a valid %s service message\n' % \
               (root_element(xml_h), service.key)
-        ret_d['http_resp_msg'] = msg
+        ret_d['msg'] = msg
         logging.info(msg)
         return ret_d
 
-    if not valid_profile_msg(oadrCfg.OADR_OP.RECV, oadr_msg):
+    if not valid_profile_msg(oadrCfg.OADR_OP.RECV, message):
         msg = '%s is not subjected to receive (%s\'s) %s ' \
               'message\n' % (oadrCfg.CONFIG['node_str'],
-              service.key, oadr_msg.key)
-        ret_d['http_resp_msg'] = msg
+              service.key, message.key)
+        ret_d['msg'] = msg
         logging.info(msg)
         return ret_d
 
     # on success, return the following.
-    del ret_d['http_resp_code']
-    del ret_d['http_resp_msg']
-    ret_d['oadr_service'] = service
-    ret_d['oadr_message'] = oadr_msg
-    ret_d['oadr_xml_msg_h'] = xml_h
+    del ret_d['code']
+    del ret_d['msg']
+    ret_d['service'] = service
+    ret_d['message'] = message
+    ret_d['xml_h']   = xml_h
     ret_d['valid'] = True
     
     return ret_d

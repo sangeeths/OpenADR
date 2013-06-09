@@ -5,7 +5,7 @@ from BaseHTTPServer import HTTPServer
 from openadr import config as oadrCfg
 from openadr.util import * 
 from openadr.exception import InvalidOADRNodeType
-from openadr.http import HttpHandler, HttpServerStartCB
+from openadr.httpHandlers import HttpHandler
 
 logging.basicConfig(filename=oadrCfg.LOG_FILENAME,
                     stream=oadrCfg.LOG_STREAM,
