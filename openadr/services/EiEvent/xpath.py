@@ -211,8 +211,10 @@ def get_oadrCreatedEvent_xpath(ns):
     'responseCode'        : '%s'    % (nsp[en.responseCode]),
     'responseDescription' : '%s'    % (nsp[en.responseDescription]),
     'requestID'           : '%s'    % (nsp[en.requestID]),
-    'eventID'             : '%s/%s' % (nsp[en.qualifiedEventID], nsp[en.eventID]),
-    'modificationNumber'  : '%s/%s' % (nsp[en.qualifiedEventID], nsp[en.modificationNumber]),
+    'eventID'             : '%s/%s' % (nsp[en.qualifiedEventID], 
+                                       nsp[en.eventID]),
+    'modificationNumber'  : '%s/%s' % (nsp[en.qualifiedEventID], 
+                                       nsp[en.modificationNumber]),
     'optType'             : '%s'    % (nsp[en.optType])
 
     }
