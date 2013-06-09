@@ -17,31 +17,26 @@ logging.basicConfig(filename=oadrCfg.LOG_FILENAME,
 class oadrHTTPServer(HTTPServer):
 
     def server_activate(self):
-        self.RequestHandlerClass.pre_start_cb()
+        self.RequestHandlerClass.HttpPreStartCallback()
         HTTPServer.server_activate(self)
-        self.RequestHandlerClass.post_start_cb()
+        self.RequestHandlerClass.HttpPostStartCallback()
 
     def server_close(self):
-        self.RequestHandlerClass.pre_stop_cb()
+        self.RequestHandlerClass.HttpPreStopCallback()
         HTTPServer.server_close(self)
-        self.RequestHandlerClass.post_stop_cb()
+        self.RequestHandlerClass.HttpPostStopCallback()
 
 
 try:
+    # configure the http server
     server = oadrHTTPServer((oadrCfg.IPADDR, oadrCfg.CONFIG['port']), HttpHandler)
 
-    # print the current running setup
-    print_startup_message()
-
-    # wait forever for incoming http requests!
+    # start the http server and wait forever 
+    # for the incoming http requests!
     server.serve_forever()
 
-    # this is unreachable code as of now!!
-    # TODO: find a way to make a callback
-    HttpServerStartCB()
-    
 except KeyboardInterrupt:
-    print_shutdown_message()
+    # stop the http server
     server.socket.close()
 
 
