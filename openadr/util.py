@@ -50,7 +50,7 @@ def print_startup_message():
 def print_shutdown_message():
     print '\nShutting down OpenADR %s\n' % \
           oadrCfg.CONFIG['node_str']
-    print 'Good bye!\n'
+    print 'goodbye!\n'
 
 
 #

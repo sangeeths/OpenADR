@@ -27,12 +27,16 @@ def VENHttpServerStartCB():
 class VENHttpServer(BaseHTTPRequestHandler):
     
     @classmethod
-    def pre_start_cb(cls):
-        print 'VENHttpServer_pre_start_cb'
+    def HttpPreStartCallback(cls):
+        pass
+
 
     @classmethod
-    def post_start_cb(cls):
-        print 'VENHttpServer_post_start_cb'
+    def HttpPostStartCallback(cls):
+
+        # print the current running setup
+        print_startup_message()
+
         urls = get_profile_urls(ipaddr=oadrCfg.ENTITY['ipaddr'], 
                                 port=oadrCfg.ENTITY['port'], 
                                 prefix=oadrCfg.ENTITY['prefix'],
@@ -51,16 +55,19 @@ class VENHttpServer(BaseHTTPRequestHandler):
  
         print "response = ", response.read()
  
-   
+
+    @classmethod
+    def HttpPreStopCallback(cls):
+        pass
 
 
     @classmethod
-    def pre_stop_cb(cls):
-        print 'VENHttpServer_pre_stop_cb'
+    def HttpPostStopCallback(cls):
 
-    @classmethod
-    def post_stop_cb(cls):
-        print 'VENHttpServer_post_stop_cb'
+        # print goodbye message!
+        print_shutdown_message()
+
+
 
     def do_POST(self):
         # get the url and data
