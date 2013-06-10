@@ -54,25 +54,18 @@ def print_shutdown_message():
 #
 # this function returns a dict 
 #   key   = OADR_SERVICE.<service-name>
-#   value = relative url prefix for the service
+#   value = partial url_path(s) for all the 
+#           all services in the given profile
 #  
-def get_url_prefix(prefix=oadrCfg.CONFIG['prefix'],
-                   profile=oadrCfg.PROFILE):
-
-    # dict which contains service url
-    # for the given profile 
-    urls = {}
-    
+def get_url_paths(prefix=oadrCfg.CONFIG['prefix'],
+                  profile=oadrCfg.PROFILE):
+    url_paths = {}
     if prefix is not None:
         prefix = '/' + prefix
-
-    # compose base url
     for service in oadrCfg.SERVICE[profile]:
-        urls[service] = '%s/OpenADR2/Simple/%s' % \
-                        (prefix, service.key)
-
-    return urls
-
+        url_paths[service] = '%s/OpenADR2/Simple/%s' % \
+                             (prefix, service.key)
+    return url_paths
 
 
 #
@@ -106,28 +99,26 @@ def get_profile_urls(ipaddr=oadrCfg.IPADDR,
     return urls
 
 #
-# the incoming 'url_prefix' is a relative path which
-# contains prefix (optional), OpenADR2/Simple, 
-# and service name
+# the incoming 'url_path' is a partial url_path 
+# which contains the following:
+#   1. prefix (optional)
+#   2. 'OpenADR2/Simple'
+#   3. OADR_SERVICE
 #   
 #   [/prefix]/OpenADR2/Simple/<OADR_SERVICE>
 #
 # success: 
-# for valid url, OADR_SERVICE.<service-name> 
-# is returned 
+#   for valid url_path, OADR_SERVICE.<service-name> 
+#   is returned 
 #
 # failure:
-# for invalid url, None is returned
+#   for invalid url_path, None is returned
 #
-def valid_url_prefix(url_prefix):
-
-    valid_prefix = get_url_prefix()
-    print "valid_url_prefix = ", valid_prefix
-
-    for service, prefix in valid_prefix.iteritems():
-        if url_prefix == prefix:
+def valid_url_path(url_path):
+    url_paths = get_url_paths()
+    for service, path in url_paths.iteritems():
+        if url_path == path:
             return service
-    
     return None
 
 
@@ -266,10 +257,10 @@ def get_schema_ns(prefix=None):
 
 #
 # this function is called to validate 
-# the incoming http url and data
+# the incoming http url_path and data
 #
 # the following validation are performed:
-#   1. valid url
+#   1. valid url_path
 #   2. valid xml data 
 #   3. oadr-service <-> oadr-msg mapping
 #   4. oadr-node (ven/vtn) <-> oadr-msg mapping
@@ -290,18 +281,18 @@ def get_schema_ns(prefix=None):
 #   ret_d['code'] -> 200
 #   ret_d['msg']  -> 'Sample message'
 #
-def valid_incoming_data(url_prefix, xml):
+def valid_incoming_data(url_path, xml):
 
     ret_d= {'valid' : False,
             'code'  : 200,
             'msg'   : ''
            }
 
-    service = valid_url_prefix(url_prefix)
+    service = valid_url_path(url_path)
     if service is None:
         msg = 'Invalid Request URL - %s\n' \
               'Currently supported OpenADR Services ' \
-              'and its URL are as follows: \n' % (url_prefix)
+              'and its URL are as follows: \n' % (url_path)
         urls = get_profile_urls()
         for svc, url in urls.iteritems():
             msg += '%15s : %s\n' % (svc.key, url)
