@@ -58,7 +58,7 @@ def compose_oadrRequestEvent_msg():
 
     e_oadrRequestEvent = etree.Element(en.oadrRequestEvent)
     e_eiRequestEvent   = etree.SubElement(e_oadrRequestEvent, en.eiRequestEvent)
-    etree.SubElement(e_eiRequestEvent, en.requestID).text  = 'rioVEN-request-1'
+    etree.SubElement(e_eiRequestEvent, en.requestID).text  = '345'
     etree.SubElement(e_eiRequestEvent, en.venID).text      = 'rioVEN-1'
     etree.SubElement(e_eiRequestEvent, en.replyLimit).text = '0'
     
@@ -278,13 +278,13 @@ def compose_oadrDistributeEvent_msg(self):
 
     # eiResponse element and its sub elements with values
     e_eiResponse = etree.SubElement(e_oadrDistributeEvent, en.eiResponse)
-    etree.SubElement(e_eiResponse, en.responseCode).text = 'ei:responseCode'
+    etree.SubElement(e_eiResponse, en.responseCode).text = '987'
     etree.SubElement(e_eiResponse, en.responseDescription).text = 'ei:responseDescription'
-    etree.SubElement(e_eiResponse, en.requestID).text = 'pyld:requestID'
+    etree.SubElement(e_eiResponse, en.requestID).text = '122'
 
     # requestID and vtnID elements and its values
     e_requestID = etree.SubElement(e_oadrDistributeEvent, en.requestID)
-    e_requestID.text = 'pyld:requestID'
+    e_requestID.text = '567'
     etree.SubElement(e_oadrDistributeEvent, en.vtnID).text = 'ei:vtnID'
 
     # oadrEvent element and its sub elements with values
@@ -298,7 +298,7 @@ def compose_oadrDistributeEvent_msg(self):
         e_eventDescriptor = etree.SubElement(e_eiEvent, en.eventDescriptor)
 
         # eventDescriptor and its sub elements with values
-        etree.SubElement(e_eventDescriptor, en.eventID).text = 'ei:eventID'
+        etree.SubElement(e_eventDescriptor, en.eventID).text = '123'
         etree.SubElement(e_eventDescriptor, en.modificationNumber).text = '0'
         etree.SubElement(e_eventDescriptor, en.priority).text = '0'
         e_eiMarketContext = etree.SubElement(e_eventDescriptor, en.eiMarketContext)
@@ -454,9 +454,9 @@ def compose_oadrCreatedEvent_msg(self):
 
     # eiResponse element and its sub element with values
     e_eiResponse = etree.SubElement(e_eiCreatedEvent, en.eiResponse)
-    etree.SubElement(e_eiResponse, en.responseCode).text = 'ei:responseCode'
+    etree.SubElement(e_eiResponse, en.responseCode).text = '976'
     etree.SubElement(e_eiResponse, en.responseDescription).text = 'ei:responseDescription'
-    etree.SubElement(e_eiResponse, en.requestID).text = 'pyld:requestID'
+    etree.SubElement(e_eiResponse, en.requestID).text = '677'
 
     # eventResponses element and its sub elements with value
     #events = get_created_event()
@@ -465,9 +465,9 @@ def compose_oadrCreatedEvent_msg(self):
         e_eventResponses = etree.SubElement(e_eiCreatedEvent, en.eventResponses)
         for event in events:
             e_eventResponse  = etree.SubElement(e_eventResponses, en.eventResponse)
-            etree.SubElement(e_eventResponse, en.responseCode).text = 'ei:responseCode'
+            etree.SubElement(e_eventResponse, en.responseCode).text = '765'
             etree.SubElement(e_eventResponse, en.responseDescription).text = 'ei:responseDescription'
-            etree.SubElement(e_eventResponse, en.requestID).text = 'pyld:requestID'
+            etree.SubElement(e_eventResponse, en.requestID).text = '678'
             e_qualifiedEventID = etree.SubElement(e_eventResponse, en.qualifiedEventID)
             etree.SubElement(e_qualifiedEventID, en.eventID).text = 'ei:eventID'
             etree.SubElement(e_qualifiedEventID, en.modificationNumber).text = '0'
@@ -521,9 +521,9 @@ def compose_oadrResponse_msg(self):
 
     e_oadrResponse = etree.Element(en.oadrResponse)
     e_eiResponse = etree.SubElement(e_oadrResponse, en.eiResponse)
-    etree.SubElement(e_eiResponse, en.responseCode).text = 'ei:responseCode'
+    etree.SubElement(e_eiResponse, en.responseCode).text = '429'
     etree.SubElement(e_eiResponse, en.responseDescription).text = 'ei:responseDescription'
-    etree.SubElement(e_eiResponse, en.requestID).text = 'pyld:requestID'
+    etree.SubElement(e_eiResponse, en.requestID).text = '789'
 
     oadrResponseMsg = etree.tostring(e_oadrResponse, 
                                      pretty_print=True, 

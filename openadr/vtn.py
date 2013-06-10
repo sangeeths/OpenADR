@@ -60,7 +60,15 @@ class VTNHttpServer(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(resp_d['msg'])
 
-        return
+        msg = 'VTN HTTP Server sent the following response\n' \
+              '      to : %s\n' \
+              '    code : %s\n' \
+              ' message : %s\n' % \
+              (self.client_address, resp_d['code'], resp_d['msg'])
+
+        logging.debug(msg)
+
+        return None
 
 
 
