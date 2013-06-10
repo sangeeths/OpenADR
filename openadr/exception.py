@@ -5,8 +5,8 @@ class InvalidOADRNodeType(Exception):
     def __str__(self):
         return repr(self.value)
 
-class ProfileNotImplemented(Exception):
-    def __init__(self, value='OADR Profile Not Implemented'):
+class InvalidOADRProfile(Exception):
+    def __init__(self, value='Invalid OADR Profile'):
         self.value = value
     def __str__(self):
         return repr(self.value)
@@ -23,4 +23,8 @@ class UnknownEiEventMessage(Exception):
     def __str__(self):
         return repr(self.value)
  
-       
+class InvalidOADRNodeID(Exception):
+    def __init__(self, value='Invalid OADR Node ID'):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)

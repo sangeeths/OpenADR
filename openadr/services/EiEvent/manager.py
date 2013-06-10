@@ -1,6 +1,5 @@
-
-from threading import Lock as Lock 
 import pickle
+from threading import Lock as Lock 
 
 from openadr.exception import UnknownEiEventMessage
 
@@ -8,15 +7,15 @@ from openadr import config as oadrCfg
 from openadr.util import *
 
 from openadr.services.EiEvent.EiEvent import EiEvent
-from openadr.services.EiEvent.message import *
-from openadr.services.EiEvent import config as EiEventCfg
+from openadr.services.EiEvent.messages import *
+
 
 # global variable for frequent reference
 service = oadrCfg.OADR_SERVICE.EiEvent
 
          
-def Load_EiEventManager(event_store_lock, 
-                        pickle_db=EiEventCfg.PICKLE_DB):
+def Load_EiEventStore(event_store_lock, 
+                      pickle_db=oadrCfg.EIEVENT_STORE):
     event_store_lock.acquire()
     try:
         event_store_pkl = open(pickle_db, 'rb')
@@ -30,13 +29,14 @@ def Load_EiEventManager(event_store_lock,
         print e
     finally:
         event_store_lock.release()
+        return {}
     return event_store
 
 
 
-def Store_EiEventManager(event_store, 
-                         event_store_lock, 
-                         pickle_db=EiEventCfg.PICKLE_DB):
+def Save_EiEventStore(event_store, 
+                      event_store_lock, 
+                      pickle_db=oadrCfg.EIEVENT_STORE):
     event_store_lock.acquire()
     try:
         pkl_d = {}
@@ -56,7 +56,7 @@ def Store_EiEventManager(event_store,
 
 class EiEventManager:
     __event_store_lock = Lock()
-    __event_store = Load_EiEventManager(__event_store_lock)
+    __event_store = Load_EiEventStore(__event_store_lock)
     
     def __init__(self): 
         print "EiEventManager:: __init__()"
@@ -71,7 +71,7 @@ class EiEventManager:
         EiEventManager.__event_store_lock.acquire()
         EiEventManager.__event_store[eiEvent.eventDescriptor.eventID] = eiEvent
         EiEventManager.__event_store_lock.release()
-        Store_EiEventManager(EiEventManager.__event_store, EiEventManager.__event_store_lock)
+        Save_EiEventStore(EiEventManager.__event_store, EiEventManager.__event_store_lock)
         print "EiEventManager:: addEiEvent() :: done"
  
     def process_oadrDistributeEvent_msg(self, **kwargs):

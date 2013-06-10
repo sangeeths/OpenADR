@@ -152,8 +152,8 @@ class EiEvent:
         self.eiTarget = EiEvent.eiTarget(**kwargs['eiTarget'])
 
     def __str__(self):
-        event_str  = "EiEvent:\n"
-        event_str += "--------\n"
+        event_str  = 'EiEvent:\n'
+        event_str += '--------\n'
         event_str += str(self.eventDescriptor)
         event_str += str(self.eiActivePeriod)
         event_str += 'eiEventSignals:\n'

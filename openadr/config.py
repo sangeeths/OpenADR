@@ -4,12 +4,14 @@ from enum import Enum
 import sys
 import logging
 
+
+
 # # # # # # # # # # # # # # # # # # # # # # # #
 #
 #            Logging Configuration
 #
 # Log file name
-LOG_FILENAME = '/tmp/VTN.log'
+LOG_FILENAME = '/tmp/VEN.log'
 #
 # Log level
 LOG_LEVEL = logging.DEBUG
@@ -43,6 +45,20 @@ PERSISTENCE_ROOT = normpath(join(OPENADR_ROOT, 'persistence'))
 OADR_CONFIG_FILE = abspath(__file__)
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # #
+#
+#            Persistence Data Store
+#
+EIEVENT_STORE = normpath(join(PERSISTENCE_ROOT, 'EiEventStore.pkl'))
+NODE_STORE = normpath(join(PERSISTENCE_ROOT, 'OADRNodes.pkl'))
+#
+# # # # # # # # # # # # # # # # # # # # # # # #
+
+
 
 
 # # # # # # # # # # # # # # # # # # # # # # # #
@@ -123,11 +139,11 @@ OADR_NODE = Enum('VEN', 'VTN', 'VN')
 #   -> OADR_NODE.VN  for both VEN and VTN
 # Anything other than the above values are 
 # considered invalid node type
-NODE = OADR_NODE.VTN
+NODE = OADR_NODE.VEN
 #
-# HTTP modes
+# OADR node operating modes
 # Read-only: Do Not Change
-HTTP_MODE = Enum('PUSH', 'PULL')
+OADR_MODE = Enum('PUSH', 'PULL')
 #
 # Current operating mode for config.NODE
 # The following are the valud values:
@@ -135,7 +151,7 @@ HTTP_MODE = Enum('PUSH', 'PULL')
 #   -> HTTP_MODE.PUSH
 # Anything other than the above values are 
 # considered invalid mode for config.NODE
-MODE = HTTP_MODE.PUSH
+MODE = OADR_MODE.PULL
 #
 # Supported operations: send and receive
 OADR_OP = Enum('SEND', 'RECV')
@@ -342,7 +358,7 @@ IPADDR = '172.16.11.128'
 #   config.NODE == OADR_NODE.VEN 
 #
 # HTTP port of VTN
-HTTP_VTN_PORT = 9011
+HTTP_VTN_PORT = 9000
 #
 # VTN URL prefix
 VTN_URL_PREFIX = 'rioVTN'
@@ -359,7 +375,7 @@ VTN_URL_PREFIX = 'rioVTN'
 #   config.NODE == OADR_NODE.VEN 
 #
 # HTTP port of VEN
-HTTP_VEN_PORT = 9001
+HTTP_VEN_PORT = 9022
 #
 # VEN URL prefix
 VEN_URL_PREFIX = 'rioVEN'
@@ -417,6 +433,23 @@ OADR_NODE_CONFIG = {
 CONFIG = OADR_NODE_CONFIG[NODE]
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # #
+#
+#            Entity Information
+#
+ENTITY = {'type'    : OADR_NODE.VEN, 
+		  'ipaddr'  : '172.16.11.128', 
+		  'port'    : '9011', 
+		  'prefix'  : 'rioVTN',
+		  'profile' : OADR_PROFILE.A}
+#
+# # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
 
 
 # __END__
