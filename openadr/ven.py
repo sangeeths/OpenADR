@@ -1,13 +1,10 @@
 from BaseHTTPServer import BaseHTTPRequestHandler
-import urllib2
-import urllib
+import urllib2, urllib
 
-from openadr import config as oadrCfg
 from openadr.util import *
-from openadr.services.EiEvent import manager as EiEventManager
-from openadr.services.EiEvent.messages import compose_oadrRequestEvent_msg
+from openadr import config as oadrCfg
+from openadr.services.EiEvent.EiEventMessages import compose_oadrRequestEvent_msg
 from openadr.handlers.EiEventHandlers import OADR_MESSAGE_HANDLER
-
 from openadr.node.NodeManager import NodeManager
 
 
@@ -54,9 +51,12 @@ class VENHttpServer(BaseHTTPRequestHandler):
 
 
     def do_POST(self):
-        # get the url and data
+
+        # get incoming request data
         dlen = int(self.headers.getheader('content-length'))
         data = self.rfile.read(dlen)
+        
+        # get the url_path (partial url)
         url_path = self.path
 
         # TODO: client info : self.client_address
@@ -66,7 +66,6 @@ class VENHttpServer(BaseHTTPRequestHandler):
               ' data length : %d\n' \
               '        data : %s\n' % \
               (url_path, dlen, data)
-    
         logging.debug(msg)
 
         resp_d = VENMessageHandler(url_path, data)
@@ -80,7 +79,6 @@ class VENHttpServer(BaseHTTPRequestHandler):
               ' data length : %s\n' \
               '        data : %s\n' % \
               (self.client_address, resp_d['code'], resp_d['msg'])
-    
         logging.debug(msg)
 
         return None
@@ -99,15 +97,15 @@ def VENMessageHandler(url_path, data):
     #   req_d['msg']
     #
     # on success: req_d['valid'] == True
-    #   req_d['oadr_service']
-    #   req_d['oadr_message']
-    #   req_d['oadr_msg_xml_h']
+    #   req_d['service']
+    #   req_d['message']
+    #   req_d['xml_h']
     req_d = valid_incoming_data(url_path, data)
 
     # on failure, send a http repsonse 
     # with the following parameters
-    #   req_d['http_resp_code']
-    #   req_d['http_resp_msg']
+    #   req_d['code']
+    #   req_d['msg']
     #
     if not req_d['valid']:
         return req_d
