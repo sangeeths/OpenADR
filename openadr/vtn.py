@@ -6,7 +6,7 @@ from openadr.services.EiEvent import manager as EiEventManager
 import logging
 from BaseHTTPServer import BaseHTTPRequestHandler
 
-from openadr.msgHandlers import OADR_MESSAGE_HANDLER
+from openadr.handlers.EiEventHandlers import OADR_MESSAGE_HANDLER
 
 
 def VTNHttpServerStartCB():

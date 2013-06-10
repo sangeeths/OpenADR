@@ -454,7 +454,7 @@ def compose_oadrCreatedEvent_msg(self):
 
     # eiResponse element and its sub element with values
     e_eiResponse = etree.SubElement(e_eiCreatedEvent, en.eiResponse)
-    etree.SubElement(e_eiResponse, en.responseCode).text = '976'
+    etree.SubElement(e_eiResponse, en.responseCode).text = '231'
     etree.SubElement(e_eiResponse, en.responseDescription).text = 'ei:responseDescription'
     etree.SubElement(e_eiResponse, en.requestID).text = '677'
 
