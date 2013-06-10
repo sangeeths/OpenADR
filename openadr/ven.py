@@ -33,6 +33,9 @@ class VENHttpServer(BaseHTTPRequestHandler):
         # 3. register polling function if current node is VEN 
         #    and current mode is PULL 
         #
+    
+        # poll for EiEvents from the registered VTN's 
+        # only if the ven is running in PULL mode
         if oadrCfg.MODE == oadrCfg.OADR_MODE.PULL:
             poll_for_events() 
 
@@ -54,19 +57,19 @@ class VENHttpServer(BaseHTTPRequestHandler):
         # get the url and data
         dlen = int(self.headers.getheader('content-length'))
         data = self.rfile.read(dlen)
-        url_prefix = self.path
+        url_path = self.path
 
         # TODO: client info : self.client_address
 
         msg = 'VEN HTTP Server received a request\n' \
-              '  url prefix : %s\n' \
+              '    url path : %s\n' \
               ' data length : %d\n' \
               '        data : %s\n' % \
-              (url_prefix, dlen, data)
+              (url_path, dlen, data)
     
         logging.debug(msg)
 
-        resp_d = VENMessageHandler(url_prefix, data)
+        resp_d = VENMessageHandler(url_path, data)
 
         self.send_response(resp_d['code'])
         self.end_headers()
@@ -83,13 +86,11 @@ class VENHttpServer(BaseHTTPRequestHandler):
         return None
 
 
-def VENMessageHandler(url_prefix, data):
+def VENMessageHandler(url_path, data):
 
     resp_d = {'code': 200,
               'msg' : '' }
     
-    print 'VENMessageHandler :: Incoming :: url = %s, data = %s' % (url_prefix, data)
-
     # valid_incoming_data() retruns 
     # request dictionary - req_d
     #
@@ -101,7 +102,7 @@ def VENMessageHandler(url_prefix, data):
     #   req_d['oadr_service']
     #   req_d['oadr_message']
     #   req_d['oadr_msg_xml_h']
-    req_d = valid_incoming_data(url_prefix, data)
+    req_d = valid_incoming_data(url_path, data)
 
     # on failure, send a http repsonse 
     # with the following parameters
@@ -111,15 +112,20 @@ def VENMessageHandler(url_prefix, data):
     if not req_d['valid']:
         return req_d
 
-    # if the incoming is validated and found
-    # legitimate then process the message
+    # if the incoming request (url, xml schema, 
+    # message <-> service mapping, etc) is 
+    # validated and found legitimate then 
+    # process the message
     service   = req_d['service']
     message   = req_d['message']
     req_xml_h = req_d['xml_h']
 
+    # get the message handler for the 
+    # respective oadr service 
     MessageHandler = OADR_MESSAGE_HANDLER[service]
+
     resp_xml_s = MessageHandler(req_xml_h)
-    print 'resp_xml_s : %s' % resp_xml_s
+    #print 'resp_xml_s : %s' % resp_xml_s
     resp_d['msg'] = resp_xml_s
 
     return resp_d
@@ -168,15 +174,23 @@ def post_request(request_url, request_msg_s):
     msg_d = {'code' : 200,
              'msg'  : request_msg_s}
 
-    my_event_url_prefix = get_url_prefix()[oadrCfg.OADR_SERVICE.EiEvent]
+    my_event_url_path = get_url_paths()[oadrCfg.OADR_SERVICE.EiEvent]
 
     while msg_d['msg'] is not None:
-        print 'post_request : url = %s : sending = %s' % (request_url, msg_d['msg'])
         req = urllib2.Request(request_url, msg_d['msg'])
-        response = urllib2.urlopen(req)
-        response_msg_s = response.read()
+        msg = 'VEN HTTP client sent the following request:\n' \
+              '       to : %s\n' \
+              '     data : %s\n' % \
+              (request_url, msg_d['msg'])
+        logging.info(msg)
+
+        response_msg_s = urllib2.urlopen(req).read()
+        msg = 'VEN HTTP client received a response:\n' \
+              '    url path : %s\n' \
+              '        data : %s\n' % \
+              (my_event_url_path, response_msg_s)
+        logging.info(msg)
         
-        print 'post_request : url = %s : receiving = %s' % (my_event_url_prefix, response_msg_s)
-        msg_d = VENMessageHandler(my_event_url_prefix, response_msg_s)
+        msg_d = VENMessageHandler(my_event_url_path, response_msg_s)
 
 
