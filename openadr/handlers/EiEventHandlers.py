@@ -1,13 +1,13 @@
 from openadr import config as oadrCfg
 
-from openadr.services.EiAvail.manager         import Response as EiAvailResponse
-from openadr.services.EiEnroll.manager        import Response as EiEnrollResponse
-from openadr.services.EiEvent.EiEventManager  import Response as EiEventResponse
-from openadr.services.EiMarketContext.manager import Response as EiMarketContextResponse
-from openadr.services.EiOpt.manager           import Response as EiOptResponse
-from openadr.services.EiQuote.manager         import Response as EiQuoteResponse
-from openadr.services.EiRegisterParty.manager import Response as EiRegisterPartyResponse
-from openadr.services.EiReport.manager        import Response as EiReportResponse
+from openadr.services.EiAvail.EiAvailManager                 import Response as EiAvailResponse
+from openadr.services.EiEnroll.EiEnrollManager               import Response as EiEnrollResponse
+from openadr.services.EiEvent.EiEventManager                 import Response as EiEventResponse
+from openadr.services.EiMarketContext.EiMarketContextManager import Response as EiMarketContextResponse
+from openadr.services.EiOpt.EiOptManager                     import Response as EiOptResponse
+from openadr.services.EiQuote.EiQuoteManager                 import Response as EiQuoteResponse
+from openadr.services.EiRegisterParty.EiRegisterPartyManager import Response as EiRegisterPartyResponse
+from openadr.services.EiReport.EiReportManager               import Response as EiReportResponse
 
 #
 # Response function handlers for all OADR_MESSAGE
