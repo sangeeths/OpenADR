@@ -1,4 +1,4 @@
-from openadr import config as oadrCfg
+from openadr import sysconfig as sysCfg
 
 from openadr.services.EiAvail.EiAvailManager                 import Response as EiAvailResponse
 from openadr.services.EiEnroll.EiEnrollManager               import Response as EiEnrollResponse
@@ -12,14 +12,15 @@ from openadr.services.EiReport.EiReportManager               import Response as 
 #
 # Response function handlers for all OADR_MESSAGE
 #
-OADR_MESSAGE_HANDLER = {oadrCfg.OADR_SERVICE.EiAvail         : EiAvailResponse ,
-                        oadrCfg.OADR_SERVICE.EiEnroll        : EiEnrollResponse,
-                        oadrCfg.OADR_SERVICE.EiEvent         : EiEventResponse,
-                        oadrCfg.OADR_SERVICE.EiMarketContext : EiMarketContextResponse,
-                        oadrCfg.OADR_SERVICE.EiOpt           : EiOptResponse,
-                        oadrCfg.OADR_SERVICE.EiQuote         : EiQuoteResponse,
-                        oadrCfg.OADR_SERVICE.EiRegisterParty : EiRegisterPartyResponse,
-                        oadrCfg.OADR_SERVICE.EiReport        : EiReportResponse
-                       }
+OADR_MESSAGE_HANDLER = {
+    sysCfg.OADR_SERVICE.EiAvail         : EiAvailResponse ,
+    sysCfg.OADR_SERVICE.EiEnroll        : EiEnrollResponse,
+    sysCfg.OADR_SERVICE.EiEvent         : EiEventResponse,
+    sysCfg.OADR_SERVICE.EiMarketContext : EiMarketContextResponse,
+    sysCfg.OADR_SERVICE.EiOpt           : EiOptResponse,
+    sysCfg.OADR_SERVICE.EiQuote         : EiQuoteResponse,
+    sysCfg.OADR_SERVICE.EiRegisterParty : EiRegisterPartyResponse,
+    sysCfg.OADR_SERVICE.EiReport        : EiReportResponse
+}
 
 

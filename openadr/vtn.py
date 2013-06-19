@@ -2,7 +2,6 @@ import logging
 from BaseHTTPServer import BaseHTTPRequestHandler
 
 from openadr.util import *
-from openadr import config as oadrCfg
 from openadr.handlers.EiEventHandlers import OADR_MESSAGE_HANDLER
 
 

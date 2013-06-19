@@ -1,51 +1,61 @@
-import pickle
+import logging
+import json
+import os
 from threading import Lock as Lock 
 
 from openadr.util import *
-from openadr import config as oadrCfg
 from openadr.exception import UnknownEiEventMessage
 from openadr.services.EiEvent import EiEvent
 from openadr.services.EiEvent.EiEventMessages import *
 
 
 # global variable for frequent reference
-service = oadrCfg.OADR_SERVICE.EiEvent
+service = sysCfg.OADR_SERVICE.EiEvent
 
          
 def Load_EiEventStore(event_store_lock, 
-                      pickle_db=oadrCfg.EIEVENT_STORE):
+                      filename=sysCfg.EIEVENT_STORE):
     event_store_lock.acquire()
     try:
-        event_store_pkl = open(pickle_db, 'rb')
-        pkl_d = pickle.load(event_store_pkl)
-        event_store_pkl.close() 
-
         event_store = {}
-        for k, v in pkl_d.iteritems():
+        logging.info('Loading EiEvents..')
+        if not os.path.exists(filename):
+            logging.debug('EiEvent Information not present in %s' % filename)
+            event_dict = {}
+        else:
+            with open(filename, 'r') as file_h:
+                event_dict = json.load(file_h)
+        # key = EventId
+        # value = object of type EiEvent()
+        for k, v in event_dict.iteritems():
             event_store[k] = EiEvent(**v)
+        logging.debug('Loaded %d EiEvent(s) from %s' % \
+                     (len(event_store), filename))
     except Exception, e:
         print e
     finally:
         event_store_lock.release()
-        return {}
     return event_store
 
 
 
 def Save_EiEventStore(event_store, 
                       event_store_lock, 
-                      pickle_db=oadrCfg.EIEVENT_STORE):
+                      filename=sysCfg.EIEVENT_STORE):
     event_store_lock.acquire()
     try:
-        pkl_d = {}
+        logging.info('Saving EiEvents..')
+        event_dict = {}
+        # key = eventId
+        # value = dict(object of type EiEvent())
         for k, v in event_store.iteritems():
-            pkl_d[k] = v.getDict()
-
-        event_store_pkl = open(pickle_db, 'wb')
-        pickle.dump(pkl_d, event_store_pkl)
-        event_store_pkl.close() 
-    except Exception, exc:
-        print exc
+            event_dict[k] = v.getDict()
+        with open(filename, 'w') as file_h:
+            json.dump(event_dict, file_h)
+        logging.debug('Saved %d EiEvent(s) to %s' % \
+                     (len(event_dict), filename))
+    except Exception, e:
+        print e
     finally:
         event_store_lock.release()
     return None
@@ -102,7 +112,7 @@ def Response(request_h):
 
     # incoming : oadrDistributeEvent : vtn -> ven 
     # outgoing : oadrCreatedEvent    : vtn <- ven 
-    if incoming_msg == oadrCfg.OADR_EIEVENT.oadrDistributeEvent:
+    if incoming_msg == sysCfg.OADR_EIEVENT.oadrDistributeEvent:
         oadrDE         = read_oadrDistributeEvent_msg(request_h)
         events_created = em.process_oadrDistributeEvent_msg(**oadrDE)
         outgoing_msg   = compose_oadrCreatedEvent_msg(events_created)
@@ -110,7 +120,7 @@ def Response(request_h):
 
     # incoming : oadrCreatedEvent : vtn <- ven 
     # outgoing : oadrResponse     : vtn -> ven 
-    elif incoming_msg == oadrCfg.OADR_EIEVENT.oadrCreatedEvent:
+    elif incoming_msg == sysCfg.OADR_EIEVENT.oadrCreatedEvent:
         events_created   = read_oadrCreatedEvent_msg(request_h)
         events_processed = process_oadrCreatedEvent_msg(events_created)
         outgoing_msg     = compose_oadrResponse_msg(events_processed)
@@ -118,7 +128,7 @@ def Response(request_h):
 
     # incoming : oadrRequestEvent    : vtn <- ven 
     # outgoing : oadrDistributeEvent : vtn -> ven 
-    elif incoming_msg == oadrCfg.OADR_EIEVENT.oadrRequestEvent:
+    elif incoming_msg == sysCfg.OADR_EIEVENT.oadrRequestEvent:
         events_requested = read_oadrRequestEvent_msg(request_h)
         events_created   = process_oadrRequestEvent_msg(events_requested)
         outgoing_msg     = compose_oadrDistributeEvent_msg(events_created)
@@ -127,7 +137,7 @@ def Response(request_h):
     # incoming : oadrResponse : vtn -> ven (for oadrCreatedEvent)
     #                           vtn <- ven (for oadrDistributeEvent)
     # outgoing : ??
-    elif incoming_msg == oadrCfg.OADR_EIEVENT.oadrResponse:
+    elif incoming_msg == sysCfg.OADR_EIEVENT.oadrResponse:
         response = read_oadrResponse_msg(request_h)
         process_oadrResponse_msg(response)
         return None

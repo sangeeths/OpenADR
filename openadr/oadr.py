@@ -1,16 +1,16 @@
 import logging 
+from openadr import userconfig as usrCfg
+
+logging.basicConfig(filename=usrCfg.LOG_FILENAME, 
+                    stream=usrCfg.LOG_STREAM, 
+                    level=usrCfg.LOG_LEVEL, 
+                    format=usrCfg.LOG_FORMAT)
+
 from BaseHTTPServer import HTTPServer
 
-
-from openadr import config as oadrCfg
 from openadr.util import * 
-from openadr.exception import InvalidOADRNodeType
+from openadr.system import IPADDR, PORT
 from openadr.handlers.httpHandlers import HttpHandler
-
-logging.basicConfig(filename=oadrCfg.LOG_FILENAME,
-                    stream=oadrCfg.LOG_STREAM,
-                    level=oadrCfg.LOG_LEVEL,
-                    format=oadrCfg.LOG_FORMAT)
 
 
 # Subclass HTTPServer with some additional callbacks
@@ -29,7 +29,7 @@ class oadrHTTPServer(HTTPServer):
 
 try:
     # configure the http server
-    server = oadrHTTPServer((oadrCfg.IPADDR, oadrCfg.CONFIG['port']), HttpHandler)
+    server = oadrHTTPServer((IPADDR, PORT), HttpHandler)
 
     # start the http server and wait forever 
     # for the incoming http requests!
@@ -38,6 +38,6 @@ try:
 except KeyboardInterrupt:
     # stop the http server
     server.socket.close()
-
+    print_shutdown_message()
 
 

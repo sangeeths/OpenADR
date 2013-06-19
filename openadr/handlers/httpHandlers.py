@@ -1,8 +1,10 @@
-from openadr import config as oadrCfg
+from openadr import sysconfig as sysCfg
+
+from openadr.system import NODE
 
 from openadr.ven import VENHttpServer
 from openadr.vtn import VTNHttpServer
-from openadr.vn import VNHttpServer
+from openadr.vn  import VNHttpServer
 
 #
 # NOTE: ideally the http_handler for the 
@@ -20,11 +22,11 @@ from openadr.vn import VNHttpServer
 # TODO: find a way to push the http_handler
 #       to config.py
 #
-OADR_HTTP_HANDLER = {oadrCfg.OADR_NODE.VEN: VENHttpServer,
-                     oadrCfg.OADR_NODE.VTN: VTNHttpServer,
-                     oadrCfg.OADR_NODE.VN:  VNHttpServer
+OADR_HTTP_HANDLER = {sysCfg.OADR_NODE.VEN: VENHttpServer,
+                     sysCfg.OADR_NODE.VTN: VTNHttpServer,
+                     sysCfg.OADR_NODE.VN:  VNHttpServer
                     }
 
-HttpHandler = OADR_HTTP_HANDLER[oadrCfg.NODE]
+HttpHandler = OADR_HTTP_HANDLER[NODE]
 
 

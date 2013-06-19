@@ -1,48 +1,58 @@
-
-import pickle
+import logging
+import json
+import os
 from threading import Lock as Lock 
 
-from openadr import config as oadrCfg
-from openadr.util import *
-
+from openadr import sysconfig as sysCfg
 from openadr.node import Node 
 
+
 def Load_NodeStore(node_store_lock, 
-                   pickle_db=oadrCfg.NODE_STORE):
+                   filename=sysCfg.NODE_STORE):
     node_store_lock.acquire()
     try:
-        node_store_pkl = open(pickle_db, 'rb')
-        pkl_d = pickle.load(node_store_pkl)
-        node_store_pkl.close() 
         node_store = {}
-        print 'Loading Node Information..'
-        for k, v in pkl_d.iteritems():
+        logging.info('Loading Nodes..')
+        if not os.path.exists(filename):
+            logging.debug('Nodes Information not present in %s' % filename)
+            node_dict = {}
+        else:
+            with open(filename, 'r') as file_h:
+                node_dict = json.load(file_h)
+
+        # key = nodeId
+        # value = object of type Node()
+        for k, v in node_dict.iteritems():
             node_store[k] = Node(**v)
-            print '    %s [%s]' % (node_store[k].nodeId,
-                                   node_store[k].nodeType)
+            logging.info('    %s [%s]' % (node_store[k].nodeId,
+                                          node_store[k].nodeType))
+        logging.debug('Loaded %d Node(s) from %s' % \
+                     (len(node_store), filename))
     except Exception, e:
         print e
     finally:
         node_store_lock.release()
-        return {}
     return node_store
 
 
 
 def Save_NodeStore(node_store, 
                    node_store_lock, 
-                   pickle_db=oadrCfg.NODE_STORE):
+                   filename=sysCfg.NODE_STORE):
     node_store_lock.acquire()
     try:
-        pkl_d = {}
+        logging.info('Saving Nodes..')
+        node_dict = {}
+        # key = nodeId 
+        # value = dict(object of type Node())
         for k, v in node_store.iteritems():
-            pkl_d[k] = v.getDict()
-
-        node_store_pkl = open(pickle_db, 'wb')
-        pickle.dump(pkl_d, node_store_pkl)
-        node_store_pkl.close() 
-    except Exception, exc:
-        print exc
+            node_dict[k] = v.getDict()
+        with open(filename, 'w') as file_h:
+            json.dump(node_dict, file_h)
+        logging.debug('Saved %d Node(s) to %s' % \
+                     (len(node_dict), filename))
+    except Exception, e:
+        print e
     finally:
         node_store_lock.release()
     return None
@@ -53,28 +63,44 @@ class NodeManager:
     __node_store = Load_NodeStore(__node_store_lock)
     
     def __init__(self): 
-        print "NodeManager :: __init__()"
-        n = Node(oadrCfg.OADR_NODE.VTN, 'testVTN_Id', 
-                 '172.16.11.128', '9011', 'rioVTN', 
-                 oadrCfg.OADR_PROFILE.A) 
-        self.addNode(n)
+        pass
+#        tn = {  'nodeType' : 'VTN',
+#                'nodeId'   : 'testVTN_Id',
+#                'ipaddr'   : '192.168.0.194',
+#                'port'     : 9044,
+#                'gui_port' : 9033,
+#                'prefix'   : 'rioVTN',
+#                'profile'  : 'A',
+#                'mode'  : 'PULL'
+#        }
+#        n = Node(**tn)
+#        self.addNode(n)
+#
+#        tn = {  'nodeType' : 'VTN',
+#                'nodeId'   : 'testVTN_Id_2',
+#                'ipaddr'   : '172.16.11.128',
+#                'port'     : '9011',
+#                'gui_port' : '9033',
+#                'prefix'   : 'rioVTN',
+#                'profile'  : 'A'
+#        }
+#        n = Node(**tn)
+#        self.addNode(n)
+
+
     def getAllNodes(self):
-        print "NodeManager :: getAllNodes()"
         return NodeManager.__node_store.values()
 
     def addNode(self, node):
-        print "NodeManager :: addNode() :: enter"
         NodeManager.__node_store_lock.acquire()
         NodeManager.__node_store[node.nodeId] = node
         NodeManager.__node_store_lock.release()
         Save_NodeStore(NodeManager.__node_store, NodeManager.__node_store_lock)
-        print "NodeManager :: addNode() :: done"
  
     def removeNode(self, node):
-        print "NodeManager :: removeNode() :: enter"
         NodeManager.__node_store_lock.acquire()
         del NodeManager.__node_store[node.nodeId]
         NodeManager.__node_store_lock.release()
         Save_NodeStore(NodeManager.__node_store, NodeManager.__node_store_lock)
-        print "NodeManager :: removeNode() :: done"
+
 

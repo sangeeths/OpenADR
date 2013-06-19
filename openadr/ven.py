@@ -1,8 +1,15 @@
+import logging
 from BaseHTTPServer import BaseHTTPRequestHandler
 import urllib2, urllib
 
+
 from openadr.util import *
-from openadr import config as oadrCfg
+
+from openadr import sysconfig as sysCfg
+from openadr import userconfig as usrCfg
+
+from openadr.system import MODE, NODE
+
 from openadr.services.EiEvent.EiEventMessages import compose_oadrRequestEvent_msg
 from openadr.handlers.EiEventHandlers import OADR_MESSAGE_HANDLER
 from openadr.node.NodeManager import NodeManager
@@ -33,7 +40,7 @@ class VENHttpServer(BaseHTTPRequestHandler):
     
         # poll for EiEvents from the registered VTN's 
         # only if the ven is running in PULL mode
-        if oadrCfg.MODE == oadrCfg.OADR_MODE.PULL:
+        if MODE == sysCfg.OADR_MODE.PULL:
             poll_for_events() 
 
 
@@ -44,10 +51,7 @@ class VENHttpServer(BaseHTTPRequestHandler):
 
     @classmethod
     def HttpPostStopCallback(cls):
-
-        # print goodbye message!
-        print_shutdown_message()
-
+        pass
 
 
     def do_POST(self):
@@ -140,23 +144,24 @@ def poll_for_events():
 
     # this function is suppose to be called only when
     # you are a VEN and running in PULL mode
-    if oadrCfg.NODE != oadrCfg.OADR_NODE.VEN:
+    if NODE != sysCfg.OADR_NODE.VEN:
         logging.debug('Attempting to poll for new Events ' \
                       'when not running as VEN.')
-    if oadrCfg.MODE != oadrCfg.OADR_MODE.PULL:
+    if MODE != sysCfg.OADR_MODE.PULL:
         logging.debug('Attempting to poll for new Events ' \
                       'when not running in PULL mode.')
  
     nm = NodeManager()       
     nodes = nm.getAllNodes()
     for node in nodes:
-        if node.nodeType != oadrCfg.OADR_NODE.VTN:
+        print str(node)
+        if node.nodeType != sysCfg.OADR_NODE.VTN:
             continue
-        urls = get_profile_urls(ipaddr=node.ipaddr,
-                                port=node.port, 
-                                prefix=node.prefix,
-                                profile=node.profile)
-        request_url = urls[oadrCfg.OADR_SERVICE.EiEvent]
+        urls = get_profile_urls(ipaddr=node.get_ipaddr(),
+                                port=node.get_port(), 
+                                prefix=node.get_prefix(),
+                                profile=node.get_profile())
+        request_url = urls[sysCfg.OADR_SERVICE.EiEvent]
         print "URLS : ", urls
         print "request_url : ", request_url
         
@@ -172,7 +177,7 @@ def post_request(request_url, request_msg_s):
     msg_d = {'code' : 200,
              'msg'  : request_msg_s}
 
-    my_event_url_path = get_url_paths()[oadrCfg.OADR_SERVICE.EiEvent]
+    my_event_url_path = get_url_paths()[sysCfg.OADR_SERVICE.EiEvent]
 
     while msg_d['msg'] is not None:
         req = urllib2.Request(request_url, msg_d['msg'])

@@ -3,8 +3,16 @@ import logging
 from lxml import etree
 from io import BytesIO
 
-from openadr import config as oadrCfg
-from openadr.exception import InvalidOADRNodeType
+from openadr import sysconfig as sysCfg
+from openadr import userconfig as usrCfg
+
+from openadr.system import SUMMARY, MODE, IPADDR, \
+                           PORT, PROFILE, NODE, \
+                           PREFIX
+
+from openadr.exception import InvalidOADRNodeType, \
+                              InvalidOADRProfile, \
+                              InvalidOADRMode
 
 #
 # print the following information
@@ -24,13 +32,9 @@ def print_startup_message():
     # compose the config string
     msg = 'Starting OpenADR %s in %s mode on %s ' \
           'at port %d configured for openADR 2.0 %s ' \
-          'profile schema.\n\n' % (
-          oadrCfg.CONFIG['node_str'], 
-          oadrCfg.MODE.key, 
-          oadrCfg.IPADDR, 
-          oadrCfg.CONFIG['port'], 
-          oadrCfg.PROFILE.key)
-
+          'profile schema.\n\n' % (SUMMARY, MODE, 
+           IPADDR, PORT, PROFILE)
+            
     # print url information for the given node
     urls = get_profile_urls()
     for service, url in urls.iteritems():
@@ -47,8 +51,7 @@ def print_startup_message():
 # else, pass.
 #
 def print_shutdown_message():
-    print '\nShutting down OpenADR %s\n' % \
-          oadrCfg.CONFIG['node_str']
+    print '\nShutting down OpenADR %s\n' % SUMMARY
     print 'goodbye!\n'
 
 #
@@ -57,12 +60,11 @@ def print_shutdown_message():
 #   value = partial url_path(s) for all the 
 #           all services in the given profile
 #  
-def get_url_paths(prefix=oadrCfg.CONFIG['prefix'],
-                  profile=oadrCfg.PROFILE):
+def get_url_paths(prefix=PREFIX, profile=PROFILE):
     url_paths = {}
     if prefix is not None:
         prefix = '/' + prefix
-    for service in oadrCfg.SERVICE[profile]:
+    for service in sysCfg.SERVICE[profile]:
         url_paths[service] = '%s/OpenADR2/Simple/%s' % \
                              (prefix, service.key)
     return url_paths
@@ -73,10 +75,8 @@ def get_url_paths(prefix=oadrCfg.CONFIG['prefix'],
 #   key   = OADR_SERVICE.<service-name>
 #   value = absolute url for the service
 #  
-def get_profile_urls(ipaddr=oadrCfg.IPADDR, 
-                     port=oadrCfg.CONFIG['port'],
-                     prefix=oadrCfg.CONFIG['prefix'],
-                     profile=oadrCfg.PROFILE):
+def get_profile_urls(ipaddr=IPADDR, port=PORT,
+                     prefix=PREFIX, profile=PROFILE):
 
     # dict which contains service url
     # for the given profile 
@@ -93,9 +93,9 @@ def get_profile_urls(ipaddr=oadrCfg.IPADDR,
                (ipaddr, port, prefix)
 
     # final url = base url + OADR_SERVICE
-    for service in oadrCfg.SERVICE[profile]:
+    for service in sysCfg.SERVICE[profile]:
         urls[service] = base_url + service.key
-
+    
     return urls
 
 #
@@ -132,7 +132,7 @@ def valid_url_path(url_path):
 # received it!
 #
 def valid_profile_msg(op, oadr_msg):
-    for msg in oadrCfg.MESSAGE[oadrCfg.PROFILE][oadrCfg.NODE][op]:
+    for msg in sysCfg.MESSAGE[PROFILE][NODE][op]:
         if oadr_msg == msg:
             return True
     return False
@@ -157,7 +157,7 @@ def valid_oadr_xml(xml_s):
     #                   should be used against all the 
     #                   incoming xml data
     #
-    with open(oadrCfg.XSD[oadrCfg.PROFILE], 'r') as oadr_schema_f:
+    with open(sysCfg.XSD[PROFILE], 'r') as oadr_schema_f:
         oadr_schema_h = etree.parse(oadr_schema_f)
     oadr_schema = etree.XMLSchema(oadr_schema_h)
 
@@ -195,7 +195,7 @@ def root_element(xml_h):
 #
 def get_oadr_msg(service, xml_h):
     root = root_element(xml_h)
-    for msg in oadrCfg.SERVICE_MESSAGE[service]:
+    for msg in sysCfg.SERVICE_MESSAGE[service]:
         if root == msg.key:
             return msg
     return None
@@ -236,7 +236,7 @@ def get_ns(xml_h, reverse=False):
 
 def get_schema_ns(prefix=None):
     ns = {}
-    for schema_file in oadrCfg.XSD_NS[oadrCfg.PROFILE]:
+    for schema_file in sysCfg.XSD_NS[PROFILE]:
         with open(schema_file, 'r') as oadr_schema_f:
             oadr_schema = oadr_schema_f.read()
         oadr_schema_h = etree.XML(oadr_schema)
@@ -271,8 +271,8 @@ def get_schema_ns(prefix=None):
 #
 # on success (ret_d['valid'] == True):
 #       variable            example
-#   ret_d['service'] -> oadrCfg.OADR_SERVICE.EiEvent
-#   ret_d['message'] -> oadrCfg.OADR_EIEVENT.oadrDistributeEvent
+#   ret_d['service'] -> sysCfg.OADR_SERVICE.EiEvent
+#   ret_d['message'] -> sysCfg.OADR_EIEVENT.oadrDistributeEvent
 #   ret_d['xml_h']   -> lxml handle to the incoming 
 #                       oadr xml message
 #
@@ -304,7 +304,7 @@ def valid_incoming_data(url_path, xml):
     if xml_h is None:
         msg = 'The incoming XML data is not ' \
               'compliant with OpenADR %s Profile ' \
-              'Schema\n' % (oadrCfg.PROFILE)
+              'Schema\n' % (PROFILE)
         ret_d['msg'] = msg
         logging.info(msg)
         return ret_d
@@ -317,10 +317,9 @@ def valid_incoming_data(url_path, xml):
         logging.info(msg)
         return ret_d
 
-    if not valid_profile_msg(oadrCfg.OADR_OP.RECV, message):
+    if not valid_profile_msg(sysCfg.OADR_OP.RECV, message):
         msg = '%s is not subjected to receive (%s\'s) %s ' \
-              'message\n' % (oadrCfg.CONFIG['node_str'],
-              service.key, message.key)
+              'message\n' % (SUMMARY, service.key, message.key)
         ret_d['msg'] = msg
         logging.info(msg)
         return ret_d
