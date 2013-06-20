@@ -6,10 +6,11 @@ logging.basicConfig(filename=usrCfg.LOG_FILENAME,
                     level=usrCfg.LOG_LEVEL, 
                     format=usrCfg.LOG_FORMAT)
 
+
 from BaseHTTPServer import HTTPServer
 
 from openadr.util import * 
-from openadr.system import IPADDR, PORT
+from openadr.system import IPADDR, PORT, NODE
 from openadr.handlers.httpHandlers import HttpHandler
 
 

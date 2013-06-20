@@ -12,7 +12,7 @@ def Load_NodeStore(node_store_lock,
     node_store_lock.acquire()
     try:
         node_store = {}
-        logging.info('Loading Nodes..')
+        logging.debug('Loading Nodes..')
         if not os.path.exists(filename):
             logging.debug('Nodes Information not present in %s' % filename)
             node_dict = {}
@@ -26,8 +26,7 @@ def Load_NodeStore(node_store_lock,
             node_store[k] = Node(**v)
             logging.info('    %s [%s]' % (node_store[k].nodeId,
                                           node_store[k].nodeType))
-        logging.debug('Loaded %d Node(s) from %s' % \
-                     (len(node_store), filename))
+        logging.debug('Loaded %d Node(s)..')
     except Exception, e:
         print e
     finally:
@@ -41,7 +40,7 @@ def Save_NodeStore(node_store,
                    filename=sysCfg.NODE_STORE):
     node_store_lock.acquire()
     try:
-        logging.info('Saving Nodes..')
+        logging.debug('Saving Nodes..')
         node_dict = {}
         # key = nodeId 
         # value = dict(object of type Node())

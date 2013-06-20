@@ -1,23 +1,23 @@
 import json
 import os
+import logging
 from threading import Lock as Lock 
 
-#from openadr.util import *
 from openadr.node import Node 
 
 from openadr import sysconfig as sysCfg
 from openadr import userconfig as usrCfg
 
-import logging
 
 def Load_SysInfo(sysInfo_lock, 
                  filename=sysCfg.SYSTEM_INFO):
     try:
-        logging.info('Loading System Information..')
+        logging.debug('Loading System Information..')
         if not os.path.exists(filename):
             logging.debug('System Information not present in %s; ' \
-                          'Loading the defults' % filename)
+                          'Loading the defults from user config' % filename)
             # NOTE: assume that you are a VEN!! :)
+            # TBD: is there a better way of dealing this scenario?! 
             sysInfo_dict = usrCfg.SYSTEM_DEFAULT_SETTINGS[sysCfg.OADR_NODE.VEN]
         else:
             with open(filename, 'r') as file_h:
@@ -28,7 +28,7 @@ def Load_SysInfo(sysInfo_lock,
     except Exception, e:
         print e
     # NOTE: store the default settings to the
-    #       persistence database
+    #       persistent SYSTEM_INFO file 
     if not os.path.exists(filename): 
         Save_SysInfo(sysInfo, sysInfo_lock)
     return sysInfo
@@ -40,9 +40,9 @@ def Save_SysInfo(sysInfo, sysInfo_lock,
     try:
         with open(filename, 'w') as file_h:
             json.dump(sysInfo.getDict(), file_h)
-        logging.info('Successfully saved the following ' \
-                     'System (Node) Information to %s' % filename)
-        logging.info(str(sysInfo))
+        logging.debug('Successfully saved the following ' \
+                      'System (Node) Information to %s \n%s' % \
+                      (filename, str(sysInfo)))
     except Exception, e:
         print e
     finally:

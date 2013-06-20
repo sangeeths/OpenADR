@@ -18,7 +18,7 @@ def Load_EiEventStore(event_store_lock,
     event_store_lock.acquire()
     try:
         event_store = {}
-        logging.info('Loading EiEvents..')
+        logging.debug('Loading EiEvents..')
         if not os.path.exists(filename):
             logging.debug('EiEvent Information not present in %s' % filename)
             event_dict = {}
@@ -44,7 +44,7 @@ def Save_EiEventStore(event_store,
                       filename=sysCfg.EIEVENT_STORE):
     event_store_lock.acquire()
     try:
-        logging.info('Saving EiEvents..')
+        logging.debug('Saving EiEvents..')
         event_dict = {}
         # key = eventId
         # value = dict(object of type EiEvent())
@@ -67,27 +67,20 @@ class EiEventManager:
     __event_store = Load_EiEventStore(__event_store_lock)
     
     def __init__(self): 
-        print "EiEventManager:: __init__()"
-        #self.__load_from_pickle_db()
-        
+        pass
+ 
     def getEiEvents(self):
-        print "EiEventManager:: getEiEvents()"
         return EiEventManager.__event_store.values()
 
     def addEiEvent(self, eiEvent):
-        print "EiEventManager:: addEiEvent() :: enter"
         EiEventManager.__event_store_lock.acquire()
         EiEventManager.__event_store[eiEvent.eventDescriptor.eventID] = eiEvent
         EiEventManager.__event_store_lock.release()
         Save_EiEventStore(EiEventManager.__event_store, EiEventManager.__event_store_lock)
-        print "EiEventManager:: addEiEvent() :: done"
  
     def process_oadrDistributeEvent_msg(self, **kwargs):
-        print 'process_oadrDistributeEvent_msg'
         for event in kwargs['EiEvents']:
             self.addEiEvent(event)   
-
-        print 'process_oadrDistributeEvent_msg'
 
 
 

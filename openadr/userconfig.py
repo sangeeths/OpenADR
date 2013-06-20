@@ -74,16 +74,20 @@ SYSTEM_DEFAULT_SETTINGS = {
 #
 # Log file name
 LOG_FILENAME = '/tmp/openadr.log'
+GUI_LOG_FILENAME = '/tmp/openadr.log'
 #
 # Log level
 LOG_LEVEL = logging.DEBUG
+GUI_LOG_LEVEL = logging.DEBUG
 #
 # Log format
 LOG_FORMAT = '[%(asctime)s]: %(levelname)s : %(message)s'
+GUI_LOG_FORMAT = '[%(asctime)s]: [GUI] : %(levelname)s : %(message)s'
 #
 # Log Stream
 # for time being, print the logs on stdout
 LOG_STREAM = sys.stdout
+GUI_LOG_STREAM = sys.stdout
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
 

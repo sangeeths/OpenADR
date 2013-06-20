@@ -8,7 +8,7 @@ from openadr import userconfig as usrCfg
 
 from openadr.system import SUMMARY, MODE, IPADDR, \
                            PORT, PROFILE, NODE, \
-                           PREFIX
+                           PREFIX, GUI_PORT
 
 from openadr.exception import InvalidOADRNodeType, \
                               InvalidOADRProfile, \
@@ -30,29 +30,64 @@ from openadr.exception import InvalidOADRNodeType, \
 def print_startup_message():
 
     # compose the config string
-    msg = 'Starting OpenADR %s in %s mode on %s ' \
-          'at port %d configured for openADR 2.0 %s ' \
-          'profile schema.\n\n' % (SUMMARY, MODE, 
+    msg  = 'Starting OpenADR %s in %s mode on %s ' \
+           'at port %d configured for openADR 2.0 %s ' \
+           'profile schema.\n' % (SUMMARY, MODE, 
            IPADDR, PORT, PROFILE)
-            
+    msg += 'The following are the supported OpenADR ' \
+           'service(s) and their url:\n'        
     # print url information for the given node
     urls = get_profile_urls()
     for service, url in urls.iteritems():
-        msg += '\t%15s : %s\n' % (service.key, url)
-    msg += '\n'
+        msg += '%20s : %s\n' % (service.key, url)
 
     print msg
-    logging.info(msg)
+    logging.debug(msg)
     
-    return
+    return None
 
 #
-# print shutdown message, if any.
-# else, pass.
+# print shutdown message
 #
 def print_shutdown_message():
-    print '\nShutting down OpenADR %s\n' % SUMMARY
-    print 'goodbye!\n'
+    msg  = '\nShutting down OpenADR %s..\n' % SUMMARY
+    msg += '\ngoodbye!\n'
+    print msg
+    logging.debug(msg)
+    return None
+
+#
+# get the gui url for the given ip address and gui port
+#
+def get_gui_url(ipaddr=IPADDR, gui_port=GUI_PORT):
+    gui_url = 'http://%s:%s/openadr/cgi-bin/index.py' % \
+              (ipaddr, gui_port)
+    return gui_url
+
+#
+# print gui startup message like url, etc
+#
+# NOTE: this function will be called 
+#       only during start up to display
+#       some useful information
+#
+def print_gui_startup_message():
+    gui_url = get_gui_url()
+    msg  = 'Starting OpenADR %s GUI..\n' % SUMMARY
+    msg += '\tURL -> %s' % gui_url
+    print msg
+    logging.info(msg)
+    return None
+
+#
+# print gui shutdown message
+#
+def print_gui_shutdown_message():
+    msg  = '\nShutting down OpenADR %s GUI..\n' % SUMMARY
+    msg += '\ngoodbye!\n'
+    print msg
+    logging.debug(msg)
+    return None
 
 #
 # this function returns a dict 

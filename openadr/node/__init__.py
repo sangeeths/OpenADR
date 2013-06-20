@@ -95,7 +95,13 @@ class Node:
         if 'gui_port' in kwargs: 
             self.gui_port = kwargs['gui_port']
         if 'summary' in kwargs: 
-            self.summary  = kwargs['summary']
+            if self.nodeType == sysCfg.OADR_NODE.VEN:
+                self.summary = 'Virtual End Node (VEN)'
+            if self.nodeType == sysCfg.OADR_NODE.VTN:
+                self.summary = 'Virtual Top Node (VTN)'
+            if self.nodeType == sysCfg.OADR_NODE.VN:
+                self.summary = 'Virtual Top Node (VTN) & ' \
+                               'Virtual End Node (VEN)'
 
 
     def valid_nodeType(self, nodeType):

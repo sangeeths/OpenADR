@@ -13,12 +13,12 @@ from enum import Enum
 OPENADR_ROOT = dirname(abspath(__file__))
 #
 # absolute filesystem path to the persistence directory
-# this is where all the pickle databases are stored!
+# this is where all the JSON persistent data are stored!
 PERSISTENCE_ROOT = normpath(join(OPENADR_ROOT, 'persistence'))
 #
-# configuration file for OpenADR i.e. this file! ;)
-# used as a reference in exceptions and error messages
-OADR_CONFIG_FILE = abspath(__file__)
+# absolute filesystem path to the cgi-bin (GUI) directory
+# this is where all the GUI related cgi (*.py) files are stored!
+GUI_ROOT = normpath(join(OPENADR_ROOT, 'cgi-bin'))
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -41,7 +41,20 @@ SYSTEM_INFO = normpath(join(PERSISTENCE_ROOT, 'SystemInfo.json'))
 
 
 
-# # # # #my_url_prefix s # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # #
+#
+#            GUI Configuration
+#
+# GUI CGI directory
+# NOTE: this is relative to /OpenADR directory.
+#
+GUI_URL_PATH = '/openadr/www'
+#
+# # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # #
 #
 #            Schema Configurations
 #
@@ -97,6 +110,9 @@ SCHEMA_OADR_20C = normpath(join(SCHEMA_20C_ROOT, 'oadr_20c.xsd'))
 # # # # # # # # # # # # # # # # # # # # # # # #
 #
 #           OADR Configurations
+#
+# OpenADR version
+OADR_VERSION = '2.0'
 #
 # OpenADR profiles
 # Read-only: Do Not Change
@@ -294,4 +310,9 @@ XSD_NS = {OADR_PROFILE.A: [SCHEMA_OADR_20A, SCHEMA_OADR_EI_20A,
          }
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+
+
+
 

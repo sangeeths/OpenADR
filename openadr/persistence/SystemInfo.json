@@ -1,1 +1,1 @@
-{"profile": "A", "nodeType": "VEN", "ipaddr": "localhost", "nodeId": "venId", "summary": "Virtual End Node (VEN)", "prefix": "VEN", "mode": "PULL", "port": 9011, "gui_port": 9012}
+{"profile": "A", "nodeType": "VEN", "ipaddr": "192.168.0.194", "nodeId": "venId", "summary": "Virtual End Node (VEN)", "prefix": "VEN", "mode": "PULL", "port": 9011, "gui_port": 9012}
