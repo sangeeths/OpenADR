@@ -182,8 +182,10 @@ class Node:
         node_str += '\tipaddr   : %s \n' % self.ipaddr
         node_str += '\tport     : %d \n' % self.port
         node_str += '\tprefix   : %s \n' % self.prefix
-        node_str += '\tgui_port : %d \n' % getattr(self, 'gui_port', None)
-        node_str += '\tsummary  : %s \n' % getattr(self, 'summart', None) 
+        if hasattr(self, 'gui_port'):
+            node_str += '\tgui_port : %d \n' % self.gui_port
+        if hasattr(self, 'summary'):
+            node_str += '\tsummary  : %s \n' % self.summary
         return node_str
 
 

@@ -78,10 +78,11 @@ class NodeManager:
 #        tn = {  'nodeType' : 'VTN',
 #                'nodeId'   : 'testVTN_Id_2',
 #                'ipaddr'   : '172.16.11.128',
-#                'port'     : '9011',
-#                'gui_port' : '9033',
+#                'port'     : 9011,
+#                'gui_port' : 9033,
 #                'prefix'   : 'rioVTN',
-#                'profile'  : 'A'
+#                'profile'  : 'A',
+#                'mode'  : 'PULL',
 #        }
 #        n = Node(**tn)
 #        self.addNode(n)
@@ -89,17 +90,25 @@ class NodeManager:
 
     def getAllNodes(self):
         return NodeManager.__node_store.values()
+    
+    def getNode(self, nodeId):
+        if nodeId in NodeManager.__node_store:
+            return NodeManager.__node_store[nodeId]
+        else:
+            return None
 
     def addNode(self, node):
         NodeManager.__node_store_lock.acquire()
         NodeManager.__node_store[node.nodeId] = node
         NodeManager.__node_store_lock.release()
         Save_NodeStore(NodeManager.__node_store, NodeManager.__node_store_lock)
+        return True
  
-    def removeNode(self, node):
+    def removeNode(self, nodeId):
         NodeManager.__node_store_lock.acquire()
-        del NodeManager.__node_store[node.nodeId]
+        del NodeManager.__node_store[nodeId]
         NodeManager.__node_store_lock.release()
         Save_NodeStore(NodeManager.__node_store, NodeManager.__node_store_lock)
+        return True
 
 

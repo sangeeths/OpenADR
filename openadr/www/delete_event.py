@@ -12,7 +12,7 @@ print "<head>"
 print "<title>%s</title>" % get_title(sub_title)
 print "</head>"
 print "<body>"
-print get_header(sub_title, page=PAGE.event, action=ACTION.delete)
+print header(sub_title, page=PAGE.event, action=ACTION.delete)
 print "body goes here!!!"
 print "</body>"
 print "</html>"
