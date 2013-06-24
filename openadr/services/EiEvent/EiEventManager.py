@@ -69,14 +69,30 @@ class EiEventManager:
     def __init__(self): 
         pass
  
-    def getEiEvents(self):
+    def getAllEiEvents(self):
         return EiEventManager.__event_store.values()
+
+    def getEiEvent(self, eventId):
+        if eventId not in EiEventManager.__event_store:
+            return False     
+        return EiEventManager.__event_store[eventId]
+
+    def removeEiEvent(self, eventId):
+        if eventId not in EiEventManager.__event_store:
+            return False     
+        EiEventManager.__event_store_lock.acquire()
+        del EiEventManager.__event_store[eventId]
+        EiEventManager.__event_store_lock.release()
+        Save_EiEventStore(EiEventManager.__event_store, EiEventManager.__event_store_lock)
+        return True
 
     def addEiEvent(self, eiEvent):
         EiEventManager.__event_store_lock.acquire()
         EiEventManager.__event_store[eiEvent.eventDescriptor.eventID] = eiEvent
         EiEventManager.__event_store_lock.release()
         Save_EiEventStore(EiEventManager.__event_store, EiEventManager.__event_store_lock)
+        logging.info('EiEventManager::addEiEvent() successful for the following event:')
+        logging.info(str(eiEvent))
  
     def process_oadrDistributeEvent_msg(self, **kwargs):
         for event in kwargs['EiEvents']:

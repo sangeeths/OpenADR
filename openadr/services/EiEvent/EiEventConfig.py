@@ -1,8 +1,25 @@
 from enum import Enum
-from os.path import join, normpath
 
-oadrResponseRequired = Enum('always', 'never')
+RESPONSE_REQUIRED = Enum('always',
+                         'never')
 
-eventStatus = Enum('none', 'far', 'near', 'active', 'completed', 'cancelled')
+EVENT_STATUS = Enum('none',
+                    'far',
+                    'near',
+                    'active',
+                    'completed',
+                    'cancelled')
 
-optType = Enum('optIn', 'optOut')
+OPT_TYPE = Enum('optIn', 
+                'optOut')
+
+SIGNAL_TYPE = Enum( 'delta',
+                    'level',
+                    'multiplier',
+                    'price',
+                    'priceMultiplier',
+                    'priceRelative',
+                    'product',
+                    'setpoint')
+
+

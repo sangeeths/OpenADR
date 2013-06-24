@@ -92,10 +92,9 @@ class NodeManager:
         return NodeManager.__node_store.values()
     
     def getNode(self, nodeId):
-        if nodeId in NodeManager.__node_store:
-            return NodeManager.__node_store[nodeId]
-        else:
+        if nodeId not in NodeManager.__node_store:
             return None
+        return NodeManager.__node_store[nodeId]
 
     def addNode(self, node):
         NodeManager.__node_store_lock.acquire()
@@ -105,6 +104,8 @@ class NodeManager:
         return True
  
     def removeNode(self, nodeId):
+        if nodeId not in NodeManager.__node_store:
+            return False
         NodeManager.__node_store_lock.acquire()
         del NodeManager.__node_store[nodeId]
         NodeManager.__node_store_lock.release()

@@ -180,20 +180,25 @@ def post_request(request_url, request_msg_s):
     my_event_url_path = get_url_paths()[sysCfg.OADR_SERVICE.EiEvent]
 
     while msg_d['msg'] is not None:
-        req = urllib2.Request(request_url, msg_d['msg'])
-        msg = 'VEN HTTP client sent the following request:\n' \
-              '       to : %s\n' \
-              '     data : %s\n' % \
-              (request_url, msg_d['msg'])
-        logging.info(msg)
-
-        response_msg_s = urllib2.urlopen(req).read()
-        msg = 'VEN HTTP client received a response:\n' \
-              '    url path : %s\n' \
-              '        data : %s\n' % \
-              (my_event_url_path, response_msg_s)
-        logging.info(msg)
-        
-        msg_d = VENMessageHandler(my_event_url_path, response_msg_s)
+        try:
+            req = urllib2.Request(request_url, msg_d['msg'])
+            msg = 'VEN HTTP client sent the following request:\n' \
+                  '       to : %s\n' \
+                  '     data : %s\n' % \
+                  (request_url, msg_d['msg'])
+            logging.info(msg)
+    
+            response_msg_s = urllib2.urlopen(req).read()
+            msg = 'VEN HTTP client received a response:\n' \
+                  '    url path : %s\n' \
+                  '        data : %s\n' % \
+                  (my_event_url_path, response_msg_s)
+            logging.info(msg)
+            
+            msg_d = VENMessageHandler(my_event_url_path, response_msg_s)
+        except Exception, e:
+            print e
+            logging.warning('Unable to communicate with %s' % request_url)
+            msg_d['msg'] = None
 
 

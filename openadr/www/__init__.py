@@ -27,7 +27,9 @@ UPDATE_NODE  = 'update_node.py'
 VIEW_EVENT   = 'view_event.py'
 ADD_EVENT    = 'add_event.py'
 EDIT_EVENT   = 'edit_event.py'
+EDIT_EVENT_ID   = 'edit_event_id.py'
 DELETE_EVENT = 'delete_event.py'
+UPDATE_EVENT = 'update_event.py'
 
 URL_INDEX        = GUI_BASE_URL + INDEX
 URL_VIEW_SYSTEM  = GUI_BASE_URL + VIEW_SYSTEM

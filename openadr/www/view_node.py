@@ -5,7 +5,6 @@ from openadr.www import *
 
 from openadr.node.NodeManager import NodeManager
 
-
 sub_title = 'View Node(s)'
 
 print "Content-type: text/html"
