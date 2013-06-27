@@ -91,5 +91,3 @@ GUI_LOG_STREAM = sys.stdout
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
 
-
-

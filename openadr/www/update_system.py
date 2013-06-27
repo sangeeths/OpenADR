@@ -13,7 +13,8 @@ from openadr.system import NODE, MODE, PROFILE, ID, IPADDR, \
 from openadr.system.SystemManager import SystemManager
 from openadr.node import Node
 
-from openadr.validation import *
+from openadr.node.NodeUtil import node_str_to_enum
+
 
 sub_title = 'Update System Configuration'
 logging.info(sub_title)

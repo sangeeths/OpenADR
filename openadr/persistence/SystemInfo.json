@@ -1,1 +1,1 @@
-{"profile": "A", "nodeType": "VEN", "ipaddr": "192.168.0.195", "nodeId": "RiptideVEN", "summary": "Virtual End Node (VEN)", "prefix": "RiptideIO-VEN", "mode": "PULL", "port": 9098, "gui_port": 9099}
+{"profile": "A", "nodeType": "VEN", "ipaddr": "172.16.11.128", "nodeId": "venId", "summary": "Virtual End Node (VEN)", "prefix": "VEN", "mode": "PULL", "port": 9011, "gui_port": 9012}

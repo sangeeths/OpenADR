@@ -71,7 +71,7 @@ def print_shutdown_message():
 # get the gui url for the given ip address and gui port
 #
 def get_gui_url(ipaddr=IPADDR, gui_port=GUI_PORT):
-    gui_url = 'http://%s:%s/openadr/cgi-bin/index.py' % \
+    gui_url = 'http://%s:%s/openadr/www/index.py' % \
               (ipaddr, gui_port)
     return gui_url
 

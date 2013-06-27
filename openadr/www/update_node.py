@@ -4,11 +4,11 @@ import cgitb; cgitb.enable()
 import cgi
 
 from openadr.www import *
-from openadr.validation import *
 
 from openadr.node.NodeManager import NodeManager
 from openadr.node import Node
 
+from openadr.node.NodeUtil import node_str_to_enum
 
 
 form = cgi.FieldStorage()
@@ -51,7 +51,7 @@ if action == 'add' or action == 'edit':
             output = "Node updated successfully!!"
     except Exception, e:
         output = e
-        raise
+        #raise
     new_page = VIEW_NODE if action == 'add' else EDIT_NODE
 
 

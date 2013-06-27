@@ -14,6 +14,10 @@ from openadr.services.EiEvent import EiEventConfig as evtCfg
 
 from openadr.node.NodeManager import NodeManager
 
+from openadr.services.EiEvent.EiEventUtil import str_to_eievent
+
+
+
 max_signals = 5
 max_intervals = 5
 
@@ -57,12 +61,12 @@ if action == 'add' or action == 'edit':
     resourceID = form.getvalue('resourceID')
     partyID    = form.getvalue('partyID')
     groupID    = form.getvalue('groupID')
-    venID      = ''
+    venID      = []
     nodes = NodeManager().getAllNodes()
     for node in nodes:
-        if node.get_nodeType() == sysCfg.OADR_NODE.VEN:
-            if form.getvalue(node.get_nodeId()):
-                venID += node.get_nodeId() + ';'
+        if node.nodeType == sysCfg.OADR_NODE.VEN:
+            if form.getvalue(node.nodeId):
+                venID.append(node.nodeId)
    
     eiEvent = {}
     # eventDescriptor
@@ -98,11 +102,11 @@ if action == 'add' or action == 'edit':
             }
             interval_list = []
             for interval in range(max_intervals):
-                if form.getvalue('cb_%d_interval_%d' % (signal, interval)):
+                if form.getvalue('cb_interval_%d_%d' % (signal, interval)):
                     i = {
-                        'uid'           : form.getvalue('%d_uid_%d' % (signal, interval)),
-                        'signalPayload' : form.getvalue('%d_signalPayload_%d' % (signal, interval)),
-                        'duration'      : form.getvalue('%d_duration_%d' % (signal, interval)),
+                        'uid'           : form.getvalue('uid_%d_%d' % (signal, interval)),
+                        'signalPayload' : form.getvalue('signalPayload_%d_%d' % (signal, interval)),
+                        'duration'      : form.getvalue('duration_%d_%d' % (signal, interval)),
                     }
                     interval_list.append(i)
             eiEventSignal['intervals'] = interval_list
@@ -116,7 +120,8 @@ if action == 'add' or action == 'edit':
     'partyID'    : partyID,
     }
 
-
+    eiEvent = str_to_eievent(eiEvent)
+    
     try:
         event = EiEvent(**eiEvent)
         em = EiEventManager()
@@ -136,9 +141,8 @@ elif action == 'delete':
 
     sub_title = 'Delete Event'
     eventId = form.getvalue('id')
-    em = EiEventManager()
     try:
-        em.removeEiEvent(eventId)
+        EiEventManager().removeEiEvent(eventId)
         output = "Event deleted successfully!!"
     except Exception, e:
         output = e

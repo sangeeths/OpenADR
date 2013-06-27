@@ -176,10 +176,10 @@ for signal in range(max_signals):
     print '</tr>'
     for interval in range(max_intervals):
         print '<tr>'
-        print '<td><input type="text" name="%d_duration_%d" value="%s"></td>' % (signal, interval, get_intervalItem('duration', signal, interval))
-        print '<td><input type="text" name="%d_uid_%d" value="%s"></td>' % (signal, interval, get_intervalItem('uid', signal, interval))
-        print '<td><input type="text" name="%d_signalPayload_%d" value="%s"></td>' % (signal, interval, get_intervalItem('signalPayload', signal, interval))
-        print '<td><input type="checkbox" name="cb_%d_interval_%d"%s></th>' % (signal, interval, intervalItem_checked(signal, interval))
+        print '<td><input type="text" name="duration_%d_%d" value="%s"></td>' % (signal, interval, get_intervalItem('duration', signal, interval))
+        print '<td><input type="text" name="uid_%d_%d" value="%s"></td>' % (signal, interval, get_intervalItem('uid', signal, interval))
+        print '<td><input type="text" name="signalPayload_%d_%d" value="%s"></td>' % (signal, interval, get_intervalItem('signalPayload', signal, interval))
+        print '<td><input type="checkbox" name="cb_interval_%d_%d"%s></th>' % (signal, interval, intervalItem_checked(signal, interval))
         print '</tr>'
         
 # eiTarget
@@ -195,12 +195,10 @@ print '<td><input type="text" name="groupID" value="%s"></td>' % old_evt.eiTarge
 print '<td><input type="text" name="resourceID" value="%s"></td>' % old_evt.eiTarget.resourceID
 print '<td>'
 venID = old_evt.eiTarget.venID
-venID = venID.split(';')
-nm = NodeManager()
-nodes = nm.getAllNodes()
+nodes = NodeManager().getAllNodes()
 for node in nodes:
-    if node.get_nodeType() == sysCfg.OADR_NODE.VEN:
-        nodeId = node.get_nodeId()
+    if node.nodeType == sysCfg.OADR_NODE.VEN:
+        nodeId = node.nodeId
         print '<input type="checkbox" name="%s"%s>%s<br>' % \
         (nodeId, ' checked' if nodeId in venID else '', nodeId)
 print '</td>'

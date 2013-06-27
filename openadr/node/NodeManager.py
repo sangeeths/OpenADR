@@ -5,7 +5,10 @@ from threading import Lock as Lock
 
 from openadr import sysconfig as sysCfg
 from openadr.node import Node 
-from openadr.validation import *
+
+from openadr.node.NodeUtil import node_enum_to_str, \
+                                  node_str_to_enum
+
 
 
 def Load_NodeStore(filename=sysCfg.NODE_STORE):

@@ -18,7 +18,7 @@ PERSISTENCE_ROOT = normpath(join(OPENADR_ROOT, 'persistence'))
 #
 # absolute filesystem path to the cgi-bin (GUI) directory
 # this is where all the GUI related cgi (*.py) files are stored!
-GUI_ROOT = normpath(join(OPENADR_ROOT, 'cgi-bin'))
+GUI_ROOT = normpath(join(OPENADR_ROOT, 'www'))
 #
 # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -32,7 +32,7 @@ GUI_ROOT = normpath(join(OPENADR_ROOT, 'cgi-bin'))
 EIEVENT_STORE = normpath(join(PERSISTENCE_ROOT, 'EiEventStore.json'))
 #
 # NodeStore - NodeManager
-NODE_STORE = normpath(join(PERSISTENCE_ROOT, 'OADRNodes.json'))
+NODE_STORE = normpath(join(PERSISTENCE_ROOT, 'OADRNodesInfo.json'))
 #
 # system informations - SystemManager 
 SYSTEM_INFO = normpath(join(PERSISTENCE_ROOT, 'SystemInfo.json'))

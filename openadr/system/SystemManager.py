@@ -8,7 +8,8 @@ from openadr.node import Node
 from openadr import sysconfig as sysCfg
 from openadr import userconfig as usrCfg
 
-from openadr.validation import *
+from openadr.node.NodeUtil import node_enum_to_str, \
+                                  node_str_to_enum
 
 
 def Load_SysInfo(filename=sysCfg.SYSTEM_INFO):
@@ -29,7 +30,9 @@ def Load_SysInfo(filename=sysCfg.SYSTEM_INFO):
         usrConfig = json.load(file_h)
     sysNode_d = node_str_to_enum(usrConfig, sysNode=True)
     sysInfo = Node(sysNode=True, **sysNode_d)
-
+    logging.debug('Loaded System Information Successfully ' \
+                  'from %s' % filename)
+    logging.info(str(sysInfo))
     return sysInfo
 
 

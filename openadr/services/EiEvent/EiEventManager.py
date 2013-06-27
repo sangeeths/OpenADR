@@ -8,63 +8,53 @@ from openadr.exception import UnknownEiEventMessage
 from openadr.services.EiEvent import EiEvent
 from openadr.services.EiEvent.EiEventMessages import *
 
+from openadr.services.EiEvent.EiEventUtil import str_to_eievent, \
+                                                 eievent_to_str
+
 
 # global variable for frequent reference
 service = sysCfg.OADR_SERVICE.EiEvent
 
          
-def Load_EiEventStore(event_store_lock, 
-                      filename=sysCfg.EIEVENT_STORE):
-    event_store_lock.acquire()
-    try:
-        event_store = {}
-        logging.debug('Loading EiEvents..')
-        if not os.path.exists(filename):
-            logging.debug('EiEvent Information not present in %s' % filename)
-            event_dict = {}
-        else:
-            with open(filename, 'r') as file_h:
-                event_dict = json.load(file_h)
-        # key = EventId
-        # value = object of type EiEvent()
-        for k, v in event_dict.iteritems():
-            event_store[k] = EiEvent(**v)
-        logging.debug('Loaded %d EiEvent(s) from %s' % \
-                     (len(event_store), filename))
-    except Exception, e:
-        print e
-    finally:
-        event_store_lock.release()
+def Load_EiEventStore(filename=sysCfg.EIEVENT_STORE):
+    # if the EiEvent configuration file does not exist
+    # then simple return {}
+    if not os.path.exists(filename):
+        logging.debug('Unable to load EiEvent(s) Information; ' \
+                      '%s not present' % filename)
+        return {}
+    with open(filename, 'r') as file_h:
+        EiEventCfg = json.load(file_h)
+    event_store = {}
+    for eventId, event in EiEventCfg.iteritems():
+        event_d = str_to_eievent(event)
+        event_store[eventId] = EiEvent(**event_d)
+    logging.debug('Loaded %d EiEvents(s) from %s' % \
+                 (len(EiEventCfg), filename))
     return event_store
 
 
-
-def Save_EiEventStore(event_store, 
-                      event_store_lock, 
+def Save_EiEventStore(event_store, event_store_lock, 
                       filename=sysCfg.EIEVENT_STORE):
     event_store_lock.acquire()
     try:
-        logging.debug('Saving EiEvents..')
         event_dict = {}
         # key = eventId
         # value = dict(object of type EiEvent())
-        for k, v in event_store.iteritems():
-            event_dict[k] = v.getDict()
+        for eventId, event in event_store.iteritems():
+            event_dict[eventId] = eievent_to_str(event.getDict())
         with open(filename, 'w') as file_h:
             json.dump(event_dict, file_h)
         logging.debug('Saved %d EiEvent(s) to %s' % \
                      (len(event_dict), filename))
-    except Exception, e:
-        print e
     finally:
         event_store_lock.release()
-    return None
 
 
 
 class EiEventManager:
     __event_store_lock = Lock()
-    __event_store = Load_EiEventStore(__event_store_lock)
+    __event_store = Load_EiEventStore()
     
     def __init__(self): 
         pass

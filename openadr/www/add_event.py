@@ -125,10 +125,10 @@ for signal in range(max_signals):
     print '</tr>'
     for interval in range(max_intervals):
         print '<tr>'
-        print '<td><input type="text" name="%d_duration_%d" value="%s"></td>' % (signal, interval, 'PT1H')
-        print '<td><input type="text" name="%d_uid_%d" value="%d_uid_%d"></td>' % (signal, interval, signal, interval)
-        print '<td><input type="text" name="%d_signalPayload_%d" value="%s"></td>' % (signal, interval, '0.0')
-        print '<td><input type="checkbox" name="cb_%d_interval_%d"></th>' % (signal, interval)
+        print '<td><input type="text" name="duration_%d_%d" value="%s"></td>' % (signal, interval, 'PT1H')
+        print '<td><input type="text" name="uid_%d_%d" value="uid_%d_%d"></td>' % (signal, interval, signal, interval)
+        print '<td><input type="text" name="signalPayload_%d_%d" value="%s"></td>' % (signal, interval, '0.0')
+        print '<td><input type="checkbox" name="cb_interval_%d_%d"></th>' % (signal, interval)
         print '</tr>'
         
 # eiTarget
@@ -146,8 +146,8 @@ print '<td>'
 nm = NodeManager()
 nodes = nm.getAllNodes()
 for node in nodes:
-    if node.get_nodeType() == sysCfg.OADR_NODE.VEN:
-        print '<input type="checkbox" name="%s">%s<br>' % (node.get_nodeId(), node.get_nodeId())
+    if node.nodeType == sysCfg.OADR_NODE.VEN:
+        print '<input type="checkbox" name="%s">%s<br>' % (node.nodeId, node.nodeId)
 print '</td>'
 print '<td><input type="text" name="partyID" value="testPartyID"></td>' 
 print '</tr>'
