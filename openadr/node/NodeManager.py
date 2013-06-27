@@ -5,88 +5,56 @@ from threading import Lock as Lock
 
 from openadr import sysconfig as sysCfg
 from openadr.node import Node 
+from openadr.validation import *
 
 
-def Load_NodeStore(node_store_lock, 
-                   filename=sysCfg.NODE_STORE):
-    node_store_lock.acquire()
-    try:
-        node_store = {}
-        logging.debug('Loading Nodes..')
-        if not os.path.exists(filename):
-            logging.debug('Nodes Information not present in %s' % filename)
-            node_dict = {}
-        else:
-            with open(filename, 'r') as file_h:
-                node_dict = json.load(file_h)
+def Load_NodeStore(filename=sysCfg.NODE_STORE):
 
-        # key = nodeId
-        # value = object of type Node()
-        for k, v in node_dict.iteritems():
-            node_store[k] = Node(**v)
-            logging.info('    %s [%s]' % (node_store[k].nodeId,
-                                          node_store[k].nodeType))
-        logging.debug('Loaded %d Node(s)..')
-    except Exception, e:
-        print e
-    finally:
-        node_store_lock.release()
+    # if the nodes configuration file does not exist
+    # then simple return {}
+    if not os.path.exists(filename):
+        logging.debug('Unable to load Node(s) Information; ' \
+                      '%s not present' % filename)
+        return {}
+
+    with open(filename, 'r') as file_h:
+        nodeConfig = json.load(file_h)
+
+    # key = nodeId
+    # value = object of type Node()
+    node_store = {}
+    for nodeId, node in nodeConfig.iteritems():
+        node_d = node_str_to_enum(node)
+        node_store[nodeId] = Node(**node_d)
+    logging.debug('Loaded %d Node(s) from %s' % \
+                 (len(nodeConfig), filename))
+    print 'Load_NodeStore: ', node_store
     return node_store
 
 
-
-def Save_NodeStore(node_store, 
-                   node_store_lock, 
+def Save_NodeStore(node_store, node_store_lock, 
                    filename=sysCfg.NODE_STORE):
     node_store_lock.acquire()
     try:
-        logging.debug('Saving Nodes..')
         node_dict = {}
         # key = nodeId 
         # value = dict(object of type Node())
-        for k, v in node_store.iteritems():
-            node_dict[k] = v.getDict()
+        for nId, n in node_store.iteritems():
+            node_dict[nId] = node_enum_to_str(n.getDict())
         with open(filename, 'w') as file_h:
             json.dump(node_dict, file_h)
         logging.debug('Saved %d Node(s) to %s' % \
                      (len(node_dict), filename))
-    except Exception, e:
-        print e
     finally:
         node_store_lock.release()
-    return None
 
 
 class NodeManager:
     __node_store_lock = Lock()
-    __node_store = Load_NodeStore(__node_store_lock)
+    __node_store = Load_NodeStore()
     
     def __init__(self): 
         pass
-#        tn = {  'nodeType' : 'VTN',
-#                'nodeId'   : 'testVTN_Id',
-#                'ipaddr'   : '192.168.0.194',
-#                'port'     : 9044,
-#                'gui_port' : 9033,
-#                'prefix'   : 'rioVTN',
-#                'profile'  : 'A',
-#                'mode'  : 'PULL'
-#        }
-#        n = Node(**tn)
-#        self.addNode(n)
-#
-#        tn = {  'nodeType' : 'VTN',
-#                'nodeId'   : 'testVTN_Id_2',
-#                'ipaddr'   : '172.16.11.128',
-#                'port'     : 9011,
-#                'gui_port' : 9033,
-#                'prefix'   : 'rioVTN',
-#                'profile'  : 'A',
-#                'mode'  : 'PULL',
-#        }
-#        n = Node(**tn)
-#        self.addNode(n)
-
 
     def getAllNodes(self):
         return NodeManager.__node_store.values()

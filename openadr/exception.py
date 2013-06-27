@@ -53,4 +53,15 @@ class InvalidOADRMode(Exception):
     def __str__(self):
         return repr(self.value)
 
+class ValueNotFound(Exception):
+    def __init__(self, value='Invalid value'):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+class InvalidIncomingElements(Exception):
+    def __init__(self, value='Mismatch between Expected and Incoming Elements'):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
 

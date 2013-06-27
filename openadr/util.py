@@ -14,6 +14,17 @@ from openadr.exception import InvalidOADRNodeType, \
                               InvalidOADRProfile, \
                               InvalidOADRMode
 
+from openadr.exception import ValueNotFound
+
+def valid_type(oadr_type, param):
+    for item in oadr_type:
+        if item.key == param:
+            return item
+    msg = param + ' not found in ' + str(oadr_type._keys)
+    raise ValueNotFound(msg)
+
+
+
 #
 # print the following information
 #   -> OADR_NODE - VEN, VTN or VN
@@ -368,11 +379,5 @@ def valid_incoming_data(url_path, xml):
     ret_d['valid'] = True
     
     return ret_d
-
-
-def elements_exist(expected, incoming):
-    s1 = set(expected)
-    s2 = set(incoming)
-    return list(s1.difference(s2))
 
 

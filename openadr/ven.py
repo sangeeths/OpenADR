@@ -157,10 +157,10 @@ def poll_for_events():
         print str(node)
         if node.nodeType != sysCfg.OADR_NODE.VTN:
             continue
-        urls = get_profile_urls(ipaddr=node.get_ipaddr(),
-                                port=node.get_port(), 
-                                prefix=node.get_prefix(),
-                                profile=node.get_profile())
+        urls = get_profile_urls(ipaddr=node.ipaddr,
+                                port=node.port, 
+                                prefix=node.prefix,
+                                profile=sysCfg.OADR_PROFILE.A)
         request_url = urls[sysCfg.OADR_SERVICE.EiEvent]
         print "URLS : ", urls
         print "request_url : ", request_url

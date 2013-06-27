@@ -15,11 +15,11 @@ from openadr import sysconfig as sysCfg
 #
 # VTN default settings
 VTN_DEFAULT_SETTINGS = {
-    'nodeType' : sysCfg.OADR_NODE.VTN.key,
-    'mode'     : sysCfg.OADR_MODE.PULL.key,
-    'profile'  : sysCfg.OADR_PROFILE.A.key,
+    'nodeType' : sysCfg.OADR_NODE.VTN,
+    'mode'     : sysCfg.OADR_MODE.PULL,
+    'profile'  : sysCfg.OADR_PROFILE.A,
     'nodeId'   : 'vtnId',
-    'ipaddr'   : 'localhost',
+    'ipaddr'   : '127.0.0.1',
     'port'     : 9001,
     'gui_port' : 9002,
     'prefix'   : 'VTN',
@@ -28,11 +28,11 @@ VTN_DEFAULT_SETTINGS = {
 #
 # VEN default settings
 VEN_DEFAULT_SETTINGS = {
-    'nodeType' : sysCfg.OADR_NODE.VEN.key,
-    'mode'     : sysCfg.OADR_MODE.PULL.key,
-    'profile'  : sysCfg.OADR_PROFILE.A.key,
+    'nodeType' : sysCfg.OADR_NODE.VEN,
+    'mode'     : sysCfg.OADR_MODE.PULL,
+    'profile'  : sysCfg.OADR_PROFILE.A,
     'nodeId'   : 'venId',
-    'ipaddr'   : 'localhost',
+    'ipaddr'   : '127.0.0.1',
     'port'     : 9011,
     'gui_port' : 9012,
     'prefix'   : 'VEN',
@@ -41,11 +41,11 @@ VEN_DEFAULT_SETTINGS = {
 #
 # VN default settings
 VN_DEFAULT_SETTINGS = {
-    'nodeType' : sysCfg.OADR_NODE.VN.key,
-    'mode'     : sysCfg.OADR_MODE.PULL.key,
-    'profile'  : sysCfg.OADR_PROFILE.A.key,
+    'nodeType' : sysCfg.OADR_NODE.VN,
+    'mode'     : sysCfg.OADR_MODE.PULL,
+    'profile'  : sysCfg.OADR_PROFILE.A,
     'nodeId'   : 'vnId',
-    'ipaddr'   : 'localhost',
+    'ipaddr'   : '127.0.0.1',
     'port'     : 9021,
     'gui_port' : 9022,
     'prefix'   : 'VN',

@@ -1,6 +1,7 @@
 from lxml import etree
 
 from openadr.util import *
+from openadr.validation import valid_incoming_elements
 #from openadr.services.EiEvent import EiEventElements as en     # en = element name
 #from openadr.services.EiEvent import EiEventConfig as EiEventCfg
 
@@ -12,11 +13,7 @@ class EiEvent:
                       'eiMarketContext', 'createdDateTime', 'eventStatus', \
                       'testEvent', 'vtnComment')
         def __init__(self, **kwargs):
-            missing_elements = elements_exist(EiEvent.eventDescriptor.__elements, 
-                                              kwargs.keys()) 
-            if missing_elements:
-                print missing_elements, " are expected but missing" 
-                return None
+            valid_incoming_elements(EiEvent.eventDescriptor.__elements, kwargs.keys()) 
             for k, v in kwargs.iteritems():
                 setattr(self, k, v)
         def __str__(self):
@@ -39,11 +36,7 @@ class EiEvent:
         __elements = ('dtstart', 'duration', 'tolerance', 'x_eiNotification', \
                       'x_eiRampUp', 'x_eiRecovery', 'components')
         def __init__(self, **kwargs):
-            missing_elements = elements_exist(EiEvent.eiActivePeriod.__elements, 
-                                              kwargs.keys()) 
-            if missing_elements:
-                print missing_elements, " are expected but missing" 
-                return None
+            valid_incoming_elements(EiEvent.eiActivePeriod.__elements, kwargs.keys()) 
             for k, v in kwargs.iteritems():
                 setattr(self, k, v)
         def __str__(self):
@@ -65,11 +58,7 @@ class EiEvent:
         class intervals:
             __elements = ('duration', 'uid', 'signalPayload')
             def __init__(self, **kwargs):
-                missing_elements = elements_exist(EiEvent.eiEventSignals.intervals.__elements, 
-                                                  kwargs.keys()) 
-                if missing_elements:
-                    print missing_elements, " are expected but missing" 
-                    return None
+                valid_incoming_elements(EiEvent.eiEventSignals.intervals.__elements, kwargs.keys()) 
                 for k, v in kwargs.iteritems():
                     setattr(self, k, v)
             def __str__(self):
@@ -82,11 +71,7 @@ class EiEvent:
                 return self.__dict__
                 
         def __init__(self, **kwargs):
-            missing_elements = elements_exist(EiEvent.eiEventSignals.__elements, 
-                                              kwargs.keys()) 
-            if missing_elements:
-                print missing_elements, " are expected but missing" 
-                return None
+            valid_incoming_elements(EiEvent.eiEventSignals.__elements, kwargs.keys()) 
             for k, v in kwargs.iteritems():
                 if k != 'intervals':
                     setattr(self, k, v)
@@ -119,11 +104,7 @@ class EiEvent:
     class eiTarget:
         __elements = ('groupID', 'resourceID', 'venID', 'partyID')
         def __init__(self, **kwargs):
-            missing_elements = elements_exist(EiEvent.eiTarget.__elements, 
-                                              kwargs.keys()) 
-            if missing_elements:
-                print missing_elements, " are expected but missing" 
-                return None
+            valid_incoming_elements(EiEvent.eiTarget.__elements, kwargs.keys()) 
             for k, v in kwargs.iteritems():
                 setattr(self, k, v)
         def __str__(self):
@@ -138,11 +119,7 @@ class EiEvent:
 
 
     def __init__(self, **kwargs):
-        missing_elements = elements_exist(EiEvent.__elements, kwargs.keys()) 
-        if missing_elements:
-            print missing_elements, " are expected but missing" 
-            return None
-
+        valid_incoming_elements(EiEvent.__elements, kwargs.keys()) 
         self.eventDescriptor = EiEvent.eventDescriptor(**kwargs['eventDescriptor'])
         self.eiActivePeriod  = EiEvent.eiActivePeriod(**kwargs['eiActivePeriod'])
         self.eiEventSignals  = []

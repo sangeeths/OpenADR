@@ -8,29 +8,28 @@ from openadr.node import Node
 from openadr import sysconfig as sysCfg
 from openadr import userconfig as usrCfg
 
+from openadr.validation import *
 
-def Load_SysInfo(sysInfo_lock, 
-                 filename=sysCfg.SYSTEM_INFO):
-    try:
-        logging.debug('Loading System Information..')
-        if not os.path.exists(filename):
-            logging.debug('System Information not present in %s; ' \
-                          'Loading the defults from user config' % filename)
-            # NOTE: assume that you are a VEN!! :)
-            # TBD: is there a better way of dealing this scenario?! 
-            sysInfo_dict = usrCfg.SYSTEM_DEFAULT_SETTINGS[sysCfg.OADR_NODE.VEN]
-        else:
-            with open(filename, 'r') as file_h:
-                sysInfo_dict = json.load(file_h)
-        
-        sysInfo = Node(**sysInfo_dict)
-        #print str(sysInfo)
-    except Exception, e:
-        print e
-    # NOTE: store the default settings to the
-    #       persistent SYSTEM_INFO file 
+
+def Load_SysInfo(filename=sysCfg.SYSTEM_INFO):
+
+    # if the persistence file does not exist,
+    # then create one from the user config
     if not os.path.exists(filename): 
-        Save_SysInfo(sysInfo, sysInfo_lock)
+        logging.debug('%s does not exist; creating one ' \
+                      'based on user config' % filename)
+        usrConfig = usrCfg.SYSTEM_DEFAULT_SETTINGS[sysCfg.OADR_NODE.VEN]
+        sysNode_d = node_enum_to_str(usrConfig, sysNode=True)
+        with open(filename, 'w') as file_h:
+            json.dump(sysNode_d, file_h)
+
+    # if the persistence file already exist, 
+    # then read from that!
+    with open(filename, 'r') as file_h:
+        usrConfig = json.load(file_h)
+    sysNode_d = node_str_to_enum(usrConfig, sysNode=True)
+    sysInfo = Node(sysNode=True, **sysNode_d)
+
     return sysInfo
 
 
@@ -38,35 +37,22 @@ def Save_SysInfo(sysInfo, sysInfo_lock,
                  filename=sysCfg.SYSTEM_INFO):
     sysInfo_lock.acquire()
     try:
+        sysInfo_d = node_enum_to_str(sysInfo.getDict(), sysNode=True)
         with open(filename, 'w') as file_h:
-            json.dump(sysInfo.getDict(), file_h)
+            json.dump(sysInfo_d, file_h)
         logging.debug('Successfully saved the following ' \
                       'System (Node) Information to %s \n%s' % \
                       (filename, str(sysInfo)))
-    except Exception, e:
-        print e
     finally:
         sysInfo_lock.release()
-    return None
 
 
 class SystemManager:
     __sysInfo_lock = Lock()
-    __sysInfo = Load_SysInfo(__sysInfo_lock)
+    __sysInfo = Load_SysInfo()
     
     def __init__(self): 
         pass
-#        tn = {  'nodeType' : 'VEN',
-#                'mode'     : 'PULL'
-#                'profile'  : 'A'
-#                'nodeId'   : 'testVTN_Id',
-#                'ipaddr'   : '172.16.11.128',
-#                'port'     : '9022',
-#                'gui_port' : '9033',
-#                'prefix'   : 'RiptideIO-VEN',
-#        }
-#        n = Node(**tn)
-#        self.updateNode(n)
     
     def getSysInfo(self):
         return SystemManager.__sysInfo

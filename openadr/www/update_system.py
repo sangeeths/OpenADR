@@ -13,6 +13,7 @@ from openadr.system import NODE, MODE, PROFILE, ID, IPADDR, \
 from openadr.system.SystemManager import SystemManager
 from openadr.node import Node
 
+from openadr.validation import *
 
 sub_title = 'Update System Configuration'
 logging.info(sub_title)
@@ -42,10 +43,11 @@ node_dict = {
 'summary'  : summary,
 }
 
+sysNode_d = node_str_to_enum(node_dict, sysNode=True)
+
 try:
-    node = Node(**node_dict)
-    sm = SystemManager()
-    sm.setSysInfo(node)   
+    node = Node(sysNode=True, **sysNode_d)
+    SystemManager().setSysInfo(node)   
     #logging.info(str(node))
     output = "System configuration updated successfully!!"
 except Exception, e:

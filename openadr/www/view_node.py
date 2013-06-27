@@ -20,8 +20,6 @@ print '<table border="1">'
 print '<tr>'
 print '<th>Node ID     </th>' 
 print '<th>Node Type   </th>' 
-print '<th>Mode        </th>' 
-print '<th>OADR Profile</th>' 
 print '<th>IP Address  </th>' 
 print '<th>Port        </th>' 
 print '<th>URL Prefix  </th>' 
@@ -30,13 +28,11 @@ print '</tr>'
 nodes = NodeManager().getAllNodes()
 for node in nodes:
     print '<tr>'
-    print '<td>%s</td>' % node.get_nodeId() 
-    print '<td>%s</td>' % node.get_nodeType() 
-    print '<td>%s</td>' % node.get_mode()
-    print '<td>%s</td>' % node.get_profile() 
-    print '<td>%s</td>' % node.get_ipaddr() 
-    print '<td>%s</td>' % node.get_port() 
-    print '<td>%s</td>' % node.get_prefix() 
+    print '<td>%s</td>' % node.nodeId 
+    print '<td>%s</td>' % node.nodeType 
+    print '<td>%s</td>' % node.ipaddr 
+    print '<td>%s</td>' % node.port 
+    print '<td>%s</td>' % node.prefix 
     print '</tr>'
  
 print '</table>'
